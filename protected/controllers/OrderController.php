@@ -31,7 +31,7 @@ class OrderController extends Controller
 				'users'=>array('*'),
 			),
 			array('allow',  // allow workers to perform 'create' and 'update' actions
-				'actions'=>array('create','update'),
+				'actions'=>array('create','update','index','view'),
 				'expression'=>'!Yii::app()->user->isGuest',
 			),
 			array('allow', // allow admin user to perform 'create','update','index','view' and 'admin' actions
@@ -50,8 +50,13 @@ class OrderController extends Controller
 	 */
 	public function actionView($id)
 	{
+		$_model = $this->loadModel($id);
+		$_model->order_state_zn = OrderState::model()->getStateDisplayByStateId($_model->order_state_id);
+		//Open when the product model is finished
+		//$_model->product_name = Product::model()->getProductNameByProductId($model->product_id);
+		
 		$this->render('view',array(
-			'model'=>$this->loadModel($id),
+			'model'=>$_model,
 		));
 	}
 
@@ -82,7 +87,7 @@ class OrderController extends Controller
 				$this->redirect(array('view','id'=>$model->id));
 			}
 		}
-
+		
 		$this->render('create',array(
 			'model'=>$model,
 		));

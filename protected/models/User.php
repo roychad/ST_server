@@ -103,4 +103,19 @@ class User extends CActiveRecord
 	{
 		return md5($password)===$this->password;
 	}
+	
+	public function getUsernameByUserId($user_id)
+	{
+		if($user_id>0&&$user_id<8)
+		{
+			$sql_getUsername = "SELECT username FROM `st_user` WHERE order_state_id = '".$user_id."'";
+			$command = Yii::app()->db->createCommand($sql_getUsername);
+			$result = $command->queryAll();
+			return $result[0]['username'];
+		}
+		else
+		{
+			return null;
+		}
+	}
 }

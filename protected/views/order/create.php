@@ -7,13 +7,13 @@ $this->breadcrumbs=array(
 if(Yii::app()->user->isAdmin)
 {
 	$this->menu=array(
-		array('label'=>'List Order', 'url'=>array('index')),
-		array('label'=>'Manage Order', 'url'=>array('admin')),
+		array('label'=>'创建订单', 'url'=>array('index')),
+		array('label'=>'管理订单', 'url'=>array('admin')),
 	);
 }
 
 ?>
 
-<h1>创建订单</h1>
+<h2>创建订单</h2>
 
 <?php echo $this->renderPartial('_form', array('model'=>$model)); ?>

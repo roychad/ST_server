@@ -1,18 +1,40 @@
 <?php
+
+$step = '';
+
+switch($sid)
+{
+case 2:
+	$step = '二';
+	break;
+case 3:
+	$step = '三';
+	break;
+case 4:
+	$step = '四';
+	break;
+case 5:
+	$step = '五';
+	break;
+case 6:
+	$step = '六';
+	break;
+case 7:
+	$step = '七';
+	break;
+}
+
 $this->breadcrumbs=array(
-	'Orders'=>array('index'),
-	$model->id=>array('view','id'=>$model->id),
-	'Update',
+	'订单'=>array('index'),
+	'步骤'.$step,
 );
 
 $this->menu=array(
-	array('label'=>'List Order', 'url'=>array('index')),
-	array('label'=>'Create Order', 'url'=>array('create')),
-	array('label'=>'View Order', 'url'=>array('view', 'id'=>$model->id)),
-	array('label'=>'Manage Order', 'url'=>array('admin')),
+	array('label'=>'创建订单', 'url'=>array('index')),
+	array('label'=>'管理订单', 'url'=>array('admin')),
 );
 ?>
 
-<h1>Update Order <?php echo $model->id; ?></h1>
+<h2>创建订单</h2>
 
 <?php echo $this->renderPartial('_form', array('model'=>$model,'sid'=>$sid)); ?>

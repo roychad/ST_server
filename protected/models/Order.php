@@ -18,10 +18,11 @@
 class Order extends CActiveRecord
 {
 
-	public $production_time;
+	public $production_time; //Time used to finish the product
 	public $express_id;
 	public $order_info;
 	public $product_name;
+	public $order_state_zn;
 	
 	const PRODUCTION_TIME_ONEDAY = 1;
 	const PRODUCTION_TIME_ONEDAYANDAHALF = 2;
@@ -91,13 +92,15 @@ class Order extends CActiveRecord
 		return array(
 			'id' => '序号',
 			'order_id' => '订单号',
+			'order_state_zn' => '订单状态',
 			'order_state_id' => '订单状态号',
 			'create_time' => '订单创建时间',
 			'product_id' => ' 产品编号',
 			'entered_pid' => '输入者',
 			'remark' => '备注',
 			'production_time'=>'制作时间',
-			'express_id'=>'快递编号'
+			'express_id'=>'快递编号',
+			'product_name'=> '产品名称'
 		);
 	}
 

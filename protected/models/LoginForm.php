@@ -36,7 +36,9 @@ class LoginForm extends CFormModel
 	public function attributeLabels()
 	{
 		return array(
-			'rememberMe'=>'Remember me next time',
+			'username' => '用户名',
+			'password' => '密码',
+			'rememberMe'=>'下次自动登录',
 		);
 	}
 

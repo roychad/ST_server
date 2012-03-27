@@ -6,14 +6,13 @@ $this->breadcrumbs=array(
 if(Yii::app()->user->isAdmin)
 {
 	$this->menu=array(
-		array('label'=>'Create Order', 'url'=>array('create')),
-		array('label'=>'Manage Order', 'url'=>array('admin')),
+		array('label'=>'管理订单', 'url'=>array('admin')),
 	);
 }
 
 ?>
 
-<h1>订单</h1>
+<h2>订单</h2>
 
 <?php $this->widget('zii.widgets.CListView', array(
 	'dataProvider'=>$dataProvider,

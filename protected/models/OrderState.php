@@ -104,4 +104,19 @@ class OrderState extends CActiveRecord
 			return null;
 		}
 	}
+	
+	static public function getStateDisplayByStateId($state_id)
+	{
+		if($state_id>0&&$state_id<8)
+		{
+			$sql_getStateDisplay = "SELECT state_display FROM `st_order_state` WHERE order_state_id = '".$state_id."'";
+			$command = Yii::app()->db->createCommand($sql_getStateDisplay);
+			$result = $command->queryAll();
+			return $result[0]['state_display'];
+		}
+		else
+		{
+			return null;
+		}
+	}
 }
