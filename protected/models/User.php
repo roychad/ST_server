@@ -1,13 +1,14 @@
-﻿<?php
+<?php
 
 /**
  * This is the model class for table "st_user".
  *
  * The followings are the available columns in table 'st_user':
  * @property integer $id
+ * @property string $user_id
  * @property string $username
  * @property string $password
- * @property integer $right
+ * @property integer $limit_id
  *
  * The followings are the available model relations:
  * @property Order[] $orders
@@ -39,13 +40,14 @@ class User extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('username, password, right', 'required'),
-			array('right', 'numerical', 'integerOnly'=>true),
-			array('username', 'length', 'max'=>30),
+			array('user_id, username, password, limit_id', 'required'),
+			array('limit_id', 'numerical', 'integerOnly'=>true),
+			array('user_id', 'length', 'max'=>11),
+			array('username', 'length', 'max'=>50),
 			array('password', 'length', 'max'=>32),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('id, username, password, right', 'safe', 'on'=>'search'),
+			array('id, user_id, username, password, limit_id', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -57,7 +59,7 @@ class User extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'orders' => array(self::HAS_MANY, 'Order', 'input_user'),
+			'orders' => array(self::HAS_MANY, 'Order', 'entered_pid'),
 		);
 	}
 
@@ -67,10 +69,11 @@ class User extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'id' => '序号：',
-			'username' => '用户名：',
-			'password' => '密码：',
-			'right' => '权限：',
+			'id' => 'ID',
+			'user_id' => 'User',
+			'username' => 'Username',
+			'password' => 'Password',
+			'limit_id' => 'Limit',
 		);
 	}
 
@@ -86,9 +89,10 @@ class User extends CActiveRecord
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
+		$criteria->compare('user_id',$this->user_id,true);
 		$criteria->compare('username',$this->username,true);
 		$criteria->compare('password',$this->password,true);
-		$criteria->compare('right',$this->right);
+		$criteria->compare('limit_id',$this->limit_id);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

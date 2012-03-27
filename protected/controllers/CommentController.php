@@ -26,9 +26,13 @@ class CommentController extends Controller
 	public function accessRules()
 	{
 		return array(
-			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-				'actions'=>array('admin','delete', 'create','index','view', 'update'),
-				'expression' => 'Yii::app()->user->isAdmin',
+			array('allow',  // allow all users to perform 'commentList' actions
+				'actions'=>array('commentList'),
+				'users'=>array('*'),
+			),
+			array('allow', // allow admin user to perform 'admin','delete','index','view','create' and 'update' actions
+				'actions'=>array('admin','delete','index','view','create','update'),
+				'expression'=>'Yii::app()->user->isAdmin',
 			),
 			array('deny',  // deny all users
 				'users'=>array('*'),
@@ -61,7 +65,6 @@ class CommentController extends Controller
 		if(isset($_POST['Comment']))
 		{
 			$model->attributes=$_POST['Comment'];
-			$model->create_time = date("Y-m-d H:i:s");
 			if($model->save())
 				$this->redirect(array('view','id'=>$model->id));
 		}
@@ -86,7 +89,6 @@ class CommentController extends Controller
 		if(isset($_POST['Comment']))
 		{
 			$model->attributes=$_POST['Comment'];
-			$model->create_time = date("Y-m-d H:i:s");
 			if($model->save())
 				$this->redirect(array('view','id'=>$model->id));
 		}
@@ -115,6 +117,17 @@ class CommentController extends Controller
 		else
 			throw new CHttpException(400,'Invalid request. Please do not repeat this request again.');
 	}
+	
+	public function actionCommentList()
+	{
+		$commentListResults = Comment::model()->findAll();
+		
+		$this->layout = false;
+		
+		$this->render('_customer',array(
+			'results'=>$commentListResults,
+		));
+	}
 
 	/**
 	 * Lists all models.
@@ -125,6 +138,11 @@ class CommentController extends Controller
 		$this->render('index',array(
 			'dataProvider'=>$dataProvider,
 		));
+	}
+	
+	public function actionTest()
+	{
+		$this->getSiteMarks();
 	}
 
 	/**
@@ -153,6 +171,17 @@ class CommentController extends Controller
 		if($model===null)
 			throw new CHttpException(404,'The requested page does not exist.');
 		return $model;
+	}
+	
+	public function getSiteMarks()
+	{
+		$_model = SiteMark::model()->findByPk('1');
+		return array(
+			'site_service_attitude' => $_model->service_attitude,
+			'site_delivery_speed' => $_model->delivery_speed,
+			'site_service_attitude_times' => $_model->service_attitude_times,
+			'site_delivery_speed_times' => $_model->delivery_speed_times,
+		);
 	}
 
 	/**

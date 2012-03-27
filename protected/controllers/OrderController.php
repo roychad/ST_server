@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 class OrderController extends Controller
 {
@@ -26,13 +26,17 @@ class OrderController extends Controller
 	public function accessRules()
 	{
 		return array(
-			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('admin','delete', 'create','index','view', 'update'),
-				'expression' => 'Yii::app()->user->isAdmin',
+			array('allow',  // allow all users to perform 'search' action
+				'actions'=>array('search'),
+				'users'=>array('*'),
 			),
-			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('index','create','update','view'),
-				'expression' => '!Yii::app()->user->isGuest',
+			array('allow',  // allow workers to perform 'create' and 'update' actions
+				'actions'=>array('create','update'),
+				'expression'=>'!Yii::app()->user->isGuest',
+			),
+			array('allow', // allow admin user to perform 'create','update','index','view' and 'admin' actions
+				'actions'=>array('create','update','index','view','admin'),
+				'expression'=>'Yii::app()->user->isAdmin',
 			),
 			array('deny',  // deny all users
 				'users'=>array('*'),
@@ -44,11 +48,10 @@ class OrderController extends Controller
 	 * Displays a particular model.
 	 * @param integer $id the ID of the model to be displayed
 	 */
-	public function actionView($id, $isCreate = '0')
+	public function actionView($id)
 	{
 		$this->render('view',array(
 			'model'=>$this->loadModel($id),
-			'isCreate' => $isCreate,
 		));
 	}
 
@@ -65,29 +68,47 @@ class OrderController extends Controller
 
 		if(isset($_POST['Order']))
 		{
-			if(isset($_GET['state'])&&($_GET['state']==='1'))
+			if(!isset($_GET['sid'])||$_GET['sid']!=='1')
 			{
-				$model->attributes=$_POST['Order'];
-				$model->create_time = date("Y-m-d H:i:s");
-				$model->state = '1';
-				$model->input_user = Yii::app()->user->id;
-				if($model->save())
-				{
-					$this->redirect(array('view','id'=>$model->id,'isCreate'=>'1'));
-				}
-				else
-				{
-					echo '订单入库失败！请重新确认后再提交！';
-				}
+				throw new CHttpException(405,'信息被非法修改，可能引起异常，请重新再试！');
 			}
-			else
+			$model->attributes=$_POST['Order'];
+			$model->order_state_id = 1;
+			$model->create_time = date("Y-m-d");
+			$model->entered_pid = Yii::app()->user->userId;
+			$model->remark = date("Y-m-d",strtotime("+2 day")).'进行制作';
+			if($model->save())
 			{
-				echo '订单入库失败！请重新确认订单状态是否正确后再提交！';
+				$this->redirect(array('view','id'=>$model->id));
 			}
 		}
 
 		$this->render('create',array(
 			'model'=>$model,
+		));
+	}
+	
+	//Search method used by customers
+	public function actionSearch()
+	{
+		$model = new Order;
+		
+		if(isset($_GET['order_id'])&&Order::model()->isValidateOrderId($_GET['order_id']))
+		{
+			$model = $this->loadExistOrder($_GET['order_id']);
+			$model->order_info = OrderState::model()->getStateZnByStateId($model->order_state_id).$model->remark;
+			//Open when the product model is finished
+			//$model->product_name = Product::model()->getProductNameByProductId($model->product_id);
+		}
+		else
+		{
+			$model -> unsetAttributes();
+		}
+		
+		$this->layout = false;
+		
+		$this->render('_customer',array(
+			'model' => $model,
 		));
 	}
 
@@ -99,42 +120,50 @@ class OrderController extends Controller
 	public function actionUpdate()
 	{
 		$model = new Order;
+		$sid = 2;
+		
+		// Uncomment the following line if AJAX validation is needed
+		// $this->performAjaxValidation($model);
+		
+		if(!isset($_GET['sid'])||$_GET['sid']>7||$_GET['sid']<2)
+		{
+			throw new CHttpException(405,'信息被非法修改，可能引起异常，请重新再试！');
+		}
+		
+		$sid = $_GET['sid'];
 		
 		if(isset($_POST['Order']))
 		{
-			$res = $model->searchFirstByOid($_POST['Order']['oid']);
-			if($res === null)
+			if(!Order::model()->isValidateOrderId($_POST['Order']['order_id']))
 			{
-				throw new CHttpException(500,'输入的订单号在之前可能不存在，请重新确认后再次输入。');
+				throw new CHttpException(404,'订单号格式有错误，请检测后重新输入！');
 			}
-			$id = $res['id'];
-			$model=$this->loadModel($id);
-			if(isset($_GET['state'])&&($_GET['state']==='2'||$_GET['state']==='3'||$_GET['state']==='4'))
+			$model = $this->loadExistOrder($_POST['Order']['order_id']);
+			if($model->isNewRecord)
 			{
-				$model->attributes=$_POST['Order'];
-				$model->create_time = date("Y-m-d H:i:s");
-				$model->state = $_GET['state'];
-				$model->input_user = Yii::app()->user->id;
-				$model->isNewRecord = false;
-				if($model->save())
-				{
-					$this->redirect(array('view','id'=>$model->id,'isCreate'=>'1'));
-				}
-				else
-				{
-					echo '订单入库失败！请重新确认后再提交！';
-				}
+				throw new CHttpException(404,'输入的订单号从未入库，请核实订单号后重新输入！');
 			}
-			else
+			$model->order_state_id = $_GET['sid'];
+			$model->create_time = date("Y-m-d");
+			$model->entered_pid = Yii::app()->user->userId;
+			switch($model->order_state_id)
 			{
-				echo '订单入库失败！请重新确认订单状态是否正确后再提交！';
+			case 2:
+				$model->remark = $_POST['Order']['production_time'].'天';
+				break;
+			case 6:
+				$model->remark = $_POST['Order']['express_id'];
+				break;
+			default:
+				$model->remark = '';
 			}
+			if($model->save())
+				$this->redirect(array('view','id'=>$model->id));
 		}
-
-
+		
 		$this->render('update',array(
-			'model'=>$model,
-			'state' => '2',
+			'model' => $model,
+			'sid' => $sid,
 		));
 	}
 
@@ -159,11 +188,12 @@ class OrderController extends Controller
 	}
 
 	/**
-	 * Lists all models.
+	 * Lists all OrderState models.
 	 */
 	public function actionIndex()
 	{
-		$dataProvider=new CActiveDataProvider('Order');
+		$dataProvider=new CActiveDataProvider('OrderState');
+		
 		$this->render('index',array(
 			'dataProvider'=>$dataProvider,
 		));
@@ -195,6 +225,13 @@ class OrderController extends Controller
 		if($model===null)
 			throw new CHttpException(404,'The requested page does not exist.');
 		return $model;
+	}
+	
+	public function loadExistOrder($order_id)
+	{
+		$_model = new Order;
+		$_model->getOrderByOrderId($order_id);
+		return $_model;
 	}
 
 	/**

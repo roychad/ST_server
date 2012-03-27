@@ -26,7 +26,7 @@ class UserController extends Controller
 	public function accessRules()
 	{
 		return array(
-			array('allow', // allow admin user to perform 'admin' and 'delete' actions
+			array('allow',  // allow admin users to perform 'admin','delete', 'create','index' and 'view' actions
 				'actions'=>array('admin','delete', 'create','index','view'),
 				'expression' => 'Yii::app()->user->isAdmin',
 			),
@@ -61,8 +61,6 @@ class UserController extends Controller
 		if(isset($_POST['User']))
 		{
 			$model->attributes=$_POST['User'];
-			$model->password=md5($model->password);
-			$model->right = '1';
 			if($model->save())
 				$this->redirect(array('view','id'=>$model->id));
 		}

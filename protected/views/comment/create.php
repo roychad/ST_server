@@ -1,12 +1,12 @@
-﻿<?php
+<?php
 $this->breadcrumbs=array(
-	'留言'=>array('index'),
-	'创建',
+	'Comments'=>array('index'),
+	'Create',
 );
 
 $this->menu=array(
-	array('label'=>'留言列表', 'url'=>array('index')),
-	array('label'=>'管理留言', 'url'=>array('admin')),
+	array('label'=>'List Comment', 'url'=>array('index')),
+	array('label'=>'Manage Comment', 'url'=>array('admin')),
 );
 ?>
 

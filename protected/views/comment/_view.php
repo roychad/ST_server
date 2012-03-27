@@ -1,15 +1,28 @@
-﻿<div class="view">
+<div class="view">
 
-	<b>序号</b>
-	<?php echo CHtml::encode($data->id)?>
-	<br />
-	
-	<b>内容</b>
-	<?php echo CHtml::link(CHTML::encode($data->text), array('view', 'id'=>$data->id)); ?>
+	<b><?php echo CHtml::encode($data->getAttributeLabel('id')); ?>:</b>
+	<?php echo CHtml::link(CHtml::encode($data->id), array('view', 'id'=>$data->id)); ?>
 	<br />
 
-	<b>创建时间</b>
+	<b><?php echo CHtml::encode($data->getAttributeLabel('text')); ?>:</b>
+	<?php echo CHtml::encode($data->text); ?>
+	<br />
+
+	<b><?php echo CHtml::encode($data->getAttributeLabel('create_time')); ?>:</b>
 	<?php echo CHtml::encode($data->create_time); ?>
+	<br />
+
+	<b><?php echo CHtml::encode($data->getAttributeLabel('contact_method')); ?>:</b>
+	<?php echo CHtml::encode($data->contact_method); ?>
+	<br />
+
+	<b><?php echo CHtml::encode($data->getAttributeLabel('service_attitude')); ?>:</b>
+	<?php echo CHtml::encode($data->service_attitude); ?>
+	<br />
+
+	<b><?php echo CHtml::encode($data->getAttributeLabel('delivery_speed')); ?>:</b>
+	<?php echo CHtml::encode($data->delivery_speed); ?>
+	<br />
 
 
 </div>

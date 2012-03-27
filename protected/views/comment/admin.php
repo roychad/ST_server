@@ -1,12 +1,12 @@
-﻿<?php
+<?php
 $this->breadcrumbs=array(
-	'留言'=>array('index'),
-	'管理',
+	'Comments'=>array('index'),
+	'Manage',
 );
 
 $this->menu=array(
-	array('label'=>'留言列表', 'url'=>array('index')),
-	array('label'=>'创建留言', 'url'=>array('create')),
+	array('label'=>'List Comment', 'url'=>array('index')),
+	array('label'=>'Create Comment', 'url'=>array('create')),
 );
 
 Yii::app()->clientScript->registerScript('search', "
@@ -23,7 +23,7 @@ $('.search-form form').submit(function(){
 ");
 ?>
 
-<h1>管理留言</h1>
+<h1>Manage Comments</h1>
 
 <p>
 You may optionally enter a comparison operator (<b>&lt;</b>, <b>&lt;=</b>, <b>&gt;</b>, <b>&gt;=</b>, <b>&lt;&gt;</b>
@@ -43,8 +43,11 @@ or <b>=</b>) at the beginning of each of your search values to specify how the c
 	'filter'=>$model,
 	'columns'=>array(
 		'id',
-		'create_time',
 		'text',
+		'create_time',
+		'contact_method',
+		'service_attitude',
+		'delivery_speed',
 		array(
 			'class'=>'CButtonColumn',
 		),

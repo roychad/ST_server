@@ -11,23 +11,33 @@
 	</div>
 
 	<div class="row">
+		<?php echo $form->label($model,'order_id'); ?>
+		<?php echo $form->textField($model,'order_id',array('size'=>50,'maxlength'=>50)); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'order_state_id'); ?>
+		<?php echo $form->textField($model,'order_state_id'); ?>
+	</div>
+
+	<div class="row">
 		<?php echo $form->label($model,'create_time'); ?>
 		<?php echo $form->textField($model,'create_time'); ?>
 	</div>
 
 	<div class="row">
-		<?php echo $form->label($model,'state'); ?>
-		<?php echo $form->textField($model,'state'); ?>
+		<?php echo $form->label($model,'product_id'); ?>
+		<?php echo $form->textField($model,'product_id',array('size'=>50,'maxlength'=>50)); ?>
 	</div>
 
 	<div class="row">
-		<?php echo $form->label($model,'input_user'); ?>
-		<?php echo $form->textField($model,'input_user'); ?>
+		<?php echo $form->label($model,'entered_pid'); ?>
+		<?php echo $form->textField($model,'entered_pid'); ?>
 	</div>
 
 	<div class="row">
-		<?php echo $form->label($model,'oid'); ?>
-		<?php echo $form->textField($model,'oid'); ?>
+		<?php echo $form->label($model,'remark'); ?>
+		<?php echo $form->textField($model,'remark',array('size'=>50,'maxlength'=>50)); ?>
 	</div>
 
 	<div class="row buttons">

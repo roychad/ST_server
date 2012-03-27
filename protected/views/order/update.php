@@ -1,41 +1,18 @@
-﻿<?php
+<?php
 $this->breadcrumbs=array(
-	'订单'=>array('index'),
-	'创建',
+	'Orders'=>array('index'),
+	$model->id=>array('view','id'=>$model->id),
+	'Update',
 );
 
-if(Yii::app()->user->isAdmin)
-{
-	$this->menu=array(
-		array('label'=>'管理订单', 'url'=>array('admin')),
-		array('label'=>'回首页', 'url'=>array('admin')),
-	);
-}
-else
-{
-	$this->menu=array(
-		array('label'=>'回首页', 'url'=>array('admin')),
-	);
-}
+$this->menu=array(
+	array('label'=>'List Order', 'url'=>array('index')),
+	array('label'=>'Create Order', 'url'=>array('create')),
+	array('label'=>'View Order', 'url'=>array('view', 'id'=>$model->id)),
+	array('label'=>'Manage Order', 'url'=>array('admin')),
+);
 ?>
 
+<h1>Update Order <?php echo $model->id; ?></h1>
 
-<h2>
-<?php
-	switch($state)
-	{
-	case 2:
-		$state_str = '步骤：正在制作';
-		break;
-	case 3:
-		$state_str = '步骤：正在吹干';
-		break;
-	case 4:
-		$state_str = '步骤：已发货';
-		break;
-	}
-	echo $state_str;
-?>
-</h2>
-
-<?php echo $this->renderPartial('_form', array('model'=>$model)); ?>
+<?php echo $this->renderPartial('_form', array('model'=>$model,'sid'=>$sid)); ?>

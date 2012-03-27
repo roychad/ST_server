@@ -1,8 +1,8 @@
-﻿<?php
+<?php
 $this->breadcrumbs=array(
-	'用户'=>array('index'),
+	'Users'=>array('index'),
 	$model->id=>array('view','id'=>$model->id),
-	'更新',
+	'Update',
 );
 
 $this->menu=array(

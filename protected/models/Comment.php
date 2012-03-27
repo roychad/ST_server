@@ -1,15 +1,19 @@
-﻿<?php
+<?php
 
 /**
  * This is the model class for table "st_comment".
  *
  * The followings are the available columns in table 'st_comment':
  * @property integer $id
- * @property string $create_time
  * @property string $text
+ * @property string $create_time
+ * @property string $contact_method
+ * @property integer $service_attitude
+ * @property integer $delivery_speed
  */
 class Comment extends CActiveRecord
 {
+
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @return Comment the static model class
@@ -35,11 +39,12 @@ class Comment extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('create_time, text', 'required'),
-			array('text', 'length', 'max'=>500),
+			array('text, create_time, service_attitude, delivery_speed', 'required'),
+			array('service_attitude, delivery_speed', 'numerical', 'integerOnly'=>true),
+			array('contact_method', 'length', 'max'=>100),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('id, create_time, text', 'safe', 'on'=>'search'),
+			array('id, text, create_time, contact_method, service_attitude, delivery_speed', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -60,9 +65,12 @@ class Comment extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'id' => '序号：',
-			'create_time' => '创建时间：',
-			'text' => '正文：',
+			'id' => 'ID',
+			'text' => 'Text',
+			'create_time' => 'Create Time',
+			'contact_method' => 'Contact Method',
+			'service_attitude' => 'Service Attitude',
+			'delivery_speed' => 'Delivery Speed',
 		);
 	}
 
@@ -78,8 +86,11 @@ class Comment extends CActiveRecord
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
-		$criteria->compare('create_time',$this->create_time,true);
 		$criteria->compare('text',$this->text,true);
+		$criteria->compare('create_time',$this->create_time,true);
+		$criteria->compare('contact_method',$this->contact_method,true);
+		$criteria->compare('service_attitude',$this->service_attitude);
+		$criteria->compare('delivery_speed',$this->delivery_speed);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

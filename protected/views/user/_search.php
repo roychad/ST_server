@@ -11,13 +11,18 @@
 	</div>
 
 	<div class="row">
-		<?php echo $form->label($model,'username'); ?>
-		<?php echo $form->textField($model,'username',array('size'=>30,'maxlength'=>30)); ?>
+		<?php echo $form->label($model,'user_id'); ?>
+		<?php echo $form->textField($model,'user_id'); ?>
 	</div>
 
 	<div class="row">
-		<?php echo $form->label($model,'right'); ?>
-		<?php echo $form->textField($model,'right'); ?>
+		<?php echo $form->label($model,'username'); ?>
+		<?php echo $form->textField($model,'username',array('size'=>50,'maxlength'=>50)); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'limit_id'); ?>
+		<?php echo $form->textField($model,'limit_id'); ?>
 	</div>
 
 	<div class="row buttons">

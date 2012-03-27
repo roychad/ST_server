@@ -1,15 +1,13 @@
-﻿<?php
+<?php
 $this->breadcrumbs=array(
-	'订单'=>array('index'),
-	'管理',
+	'Orders'=>array('index'),
+	'Manage',
 );
 
-if(Yii::app()->user->isAdmin)
-{
-	$this->menu=array(
-		array('label'=>'回首页', 'url'=>array('admin')),
-	);
-}
+$this->menu=array(
+	array('label'=>'List Order', 'url'=>array('index')),
+	array('label'=>'Create Order', 'url'=>array('create')),
+);
 
 Yii::app()->clientScript->registerScript('search', "
 $('.search-button').click(function(){
@@ -25,11 +23,14 @@ $('.search-form form').submit(function(){
 ");
 ?>
 
-<h1>管理订单</h1>
+<h1>Manage Orders</h1>
 
+<p>
+You may optionally enter a comparison operator (<b>&lt;</b>, <b>&lt;=</b>, <b>&gt;</b>, <b>&gt;=</b>, <b>&lt;&gt;</b>
+or <b>=</b>) at the beginning of each of your search values to specify how the comparison should be done.
+</p>
 
-
-<?php echo CHtml::link('高级搜索','#',array('class'=>'search-button')); ?>
+<?php echo CHtml::link('Advanced Search','#',array('class'=>'search-button')); ?>
 <div class="search-form" style="display:none">
 <?php $this->renderPartial('_search',array(
 	'model'=>$model,
@@ -42,10 +43,14 @@ $('.search-form form').submit(function(){
 	'filter'=>$model,
 	'columns'=>array(
 		'id',
+		'order_id',
+		'order_state_id',
 		'create_time',
-		'state',
-		'input_user',
-		'oid',
+		'product_id',
+		'entered_pid',
+		/*
+		'remark',
+		*/
 		array(
 			'class'=>'CButtonColumn',
 		),

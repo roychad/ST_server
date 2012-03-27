@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $this->breadcrumbs=array(
 	'Orders'=>array('index'),
 	$model->id,
@@ -7,43 +7,32 @@ $this->breadcrumbs=array(
 if(Yii::app()->user->isAdmin)
 {
 	$this->menu=array(
-		array('label'=>'管理订单', 'url'=>array('admin')),
-		array('label'=>'回首页', 'url'=>array('admin')),
-	);
-}
-else
-{
-	$this->menu=array(
-		array('label'=>'回首页', 'url'=>array('admin')),
+		array('label'=>'List Order', 'url'=>array('index')),
+		array('label'=>'Create Order', 'url'=>array('create')),
+		array('label'=>'Update Order', 'url'=>array('update', 'id'=>$model->id)),
+		array('label'=>'Delete Order', 'url'=>'#', 'linkOptions'=>array('submit'=>array('delete','id'=>$model->id),'confirm'=>'Are you sure you want to delete this item?')),
+		array('label'=>'Manage Order', 'url'=>array('admin')),
 	);
 }
 ?>
 
-<h3><?php   echo $isCreate?'创建成功！':'';?></h3>
-
-<h1>订单号：<?php echo $model->oid;?></h1>
+<h1>View Order #<?php echo $model->id; ?></h1>
 
 <?php $this->widget('zii.widgets.CDetailView', array(
 	'data'=>$model,
 	'attributes'=>array(
-		'oid',
+		'order_id',
+		'order_state_id',
 		'create_time',
-		'state',
-		'input_user',
+		'product_id',
+		'entered_pid',
+		'remark',
 	),
 )); 
 
-if($isCreate)
-{
-	if($model->state==='1')
-	{
-		echo CHtml::link('继续创建', array('create', 'state'=>1));
-	}
-	else
-	{
-		echo CHtml::link('继续创建', array('update', 'state'=>$model->state));
-	}
-}
+echo CHtml::link(CHtml::encode('继续入库'), array(
+						(($model->order_state_id==='1')?'create':'update'), 
+						'sid' => $model->order_state_id
+					)); 
 
 ?>
-
