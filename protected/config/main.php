@@ -9,6 +9,7 @@ return array(
 	'basePath'=>dirname(__FILE__).DIRECTORY_SEPARATOR.'..',
 	'name'=>'Shining Town 工作室',
 	'defaultController' => 'order',
+	'language'=>'zh_cn',
 
 	// preloading 'log' component
 	'preload'=>array('log'),

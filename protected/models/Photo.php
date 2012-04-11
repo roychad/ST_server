@@ -1,22 +1,25 @@
 <?php
 
 /**
- * This is the model class for table "st_comment".
+ * This is the model class for table "st_photo".
  *
- * The followings are the available columns in table 'st_comment':
+ * The followings are the available columns in table 'st_photo':
  * @property integer $id
- * @property string $text
- * @property string $create_time
- * @property string $contact_method
- * @property integer $service_attitude
- * @property integer $delivery_speed
+ * @property string $photo_name
+ * @property string $product_id
+ * @property integer $cover_state_id
+ * @property integer $photo_state_id
+ *
+ * The followings are the available model relations:
+ * @property CoverState $coverState
+ * @property Product $product
+ * @property PhotoState $photoState
  */
-class Comment extends CActiveRecord
+class Photo extends CActiveRecord
 {
-
 	/**
 	 * Returns the static model of the specified AR class.
-	 * @return Comment the static model class
+	 * @return Photo the static model class
 	 */
 	public static function model($className=__CLASS__)
 	{
@@ -28,7 +31,7 @@ class Comment extends CActiveRecord
 	 */
 	public function tableName()
 	{
-		return 'st_comment';
+		return 'st_photo';
 	}
 
 	/**
@@ -39,14 +42,13 @@ class Comment extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('text, create_time, service_attitude, delivery_speed', 'required'),
-			array('service_attitude, delivery_speed', 'numerical', 'integerOnly'=>true),
-			array('contact_method', 'length', 'max'=>100),
-			array('service_attitude', 'in' , 'range'=>array(1,2,3,4,5)),
-			array('delivery_speed', 'in' , 'range'=>array(1,2,3,4,5)),
+			array('photo_name, product_id, cover_state_id, photo_state_id', 'required'),
+			array('cover_state_id, photo_state_id', 'numerical', 'integerOnly'=>true),
+			array('photo_name', 'length', 'max'=>32),
+			array('product_id', 'length', 'max'=>50),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('id, text, create_time, contact_method, service_attitude, delivery_speed', 'safe', 'on'=>'search'),
+			array('id, photo_name, product_id, cover_state_id, photo_state_id', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -58,6 +60,9 @@ class Comment extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
+			'coverState' => array(self::BELONGS_TO, 'CoverState', 'cover_state_id'),
+			'product' => array(self::BELONGS_TO, 'Product', 'product_id'),
+			'photoState' => array(self::BELONGS_TO, 'PhotoState', 'photo_state_id'),
 		);
 	}
 
@@ -67,12 +72,11 @@ class Comment extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'id' => '序号',
-			'text' => '正文',
-			'create_time' => '创建时间',
-			'contact_method' => '联系方式',
-			'service_attitude' => '服务态度',
-			'delivery_speed' => '发货速度',
+			'id' => 'ID',
+			'photo_name' => 'Photo Name',
+			'product_id' => 'Product',
+			'cover_state_id' => 'Cover State',
+			'photo_state_id' => 'Photo State',
 		);
 	}
 
@@ -88,11 +92,10 @@ class Comment extends CActiveRecord
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
-		$criteria->compare('text',$this->text,true);
-		$criteria->compare('create_time',$this->create_time,true);
-		$criteria->compare('contact_method',$this->contact_method,true);
-		$criteria->compare('service_attitude',$this->service_attitude);
-		$criteria->compare('delivery_speed',$this->delivery_speed);
+		$criteria->compare('photo_name',$this->photo_name,true);
+		$criteria->compare('product_id',$this->product_id,true);
+		$criteria->compare('cover_state_id',$this->cover_state_id);
+		$criteria->compare('photo_state_id',$this->photo_state_id);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

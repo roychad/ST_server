@@ -1,6 +1,6 @@
 <?php
 
-class CommentController extends Controller
+class ProductController extends Controller
 {
 	/**
 	 * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
@@ -26,10 +26,6 @@ class CommentController extends Controller
 	public function accessRules()
 	{
 		return array(
-			array('allow',  // allow all users to perform 'commentList' actions
-				'actions'=>array('commentList','commentText'),
-				'users'=>array('*'),
-			),
 			array('allow', // allow admin user to perform 'admin','delete','index','view','create' and 'update' actions
 				'actions'=>array('admin','delete','index','view','create','update'),
 				'expression'=>'Yii::app()->user->isAdmin',
@@ -57,17 +53,64 @@ class CommentController extends Controller
 	 */
 	public function actionCreate()
 	{
-		$model=new Comment;
+		$model=new Product;
 
 		// Uncomment the following line if AJAX validation is needed
 		$this->performAjaxValidation($model);
 
-		if(isset($_POST['Comment']))
+		if(isset($_POST['Product']))
 		{
-			$model->attributes=$_POST['Comment'];
-			$model->create_time = date("Y-m-d H:i:s");
+			
+			$model->attributes=$_POST['Product'];
+			
+			if(!$model->validateProductId())
+			{
+				throw new CHttpException(400,'product_id不规范，请确认后重新输入！');
+			}
+			
+			if(!is_dir(Yii::getPathOfAlias('webroot').'/images/photo/')) 
+			{
+				mkdir(Yii::getPathOfAlias('webroot').'/images/photo/');
+				chmod(Yii::getPathOfAlias('webroot').'/images/photo/', 0777);
+			}
+			
+			$images = CUploadedFile::getInstancesByName('images');
+			
+			if (isset($images) && count($images) > 0) 
+			{
+                // go through each uploaded image
+                foreach ($images as $image => $pic) 
+				{
+                    if ($pic->saveAs(Yii::getPathOfAlias('webroot').'/images/photo/'.$pic->name)) 
+					{
+						/*
+						$photoModel = new Photo;
+						$photoModel->photo_name = $pic->name;
+						$photoModel->product_id = $model->product_id;
+						$photoModel->cover_state_id = 2;
+						$photoModel->photo_state_id = 1;
+						
+						if(!$photoModel->save())
+						{
+							throw new CHttpException(400,'图片上传遇到问题，请重新上传或与开发者联系');
+						}
+						*/
+                    }
+                    else  // handle the errors here, if you want
+					{
+						;
+					}
+                }
+			}
+			/*
+			$model->product_marked_times = 0;
+			$model->product_create_time = date("Y-m-d H:i:s");
+			$model->product_mark = 5;
 			if($model->save())
+			{
 				$this->redirect(array('view','id'=>$model->id));
+			}
+			*/
 		}
 
 		$this->render('create',array(
@@ -85,12 +128,11 @@ class CommentController extends Controller
 		$model=$this->loadModel($id);
 
 		// Uncomment the following line if AJAX validation is needed
-		$this->performAjaxValidation($model);
+		// $this->performAjaxValidation($model);
 
-		if(isset($_POST['Comment']))
+		if(isset($_POST['Product']))
 		{
-			$model->attributes=$_POST['Comment'];
-			$model->create_time = date("Y-m-d H:i:s");
+			$model->attributes=$_POST['Product'];
 			if($model->save())
 				$this->redirect(array('view','id'=>$model->id));
 		}
@@ -119,49 +161,16 @@ class CommentController extends Controller
 		else
 			throw new CHttpException(400,'Invalid request. Please do not repeat this request again.');
 	}
-	
-	//Return commentLists to the customer
-	public function actionCommentList()
-	{
-		$commentListResults = Comment::model()->findAll();
-		
-		$this->layout = false;
-		
-		$this->render('_customerList',array(
-			'results'=>$commentListResults,
-		));
-	}
-	
-	//Return commentText to the customer
-	public function actionCommentText($id)
-	{
-		$this->layout = false;
-		
-		$this->render('_customerText',array(
-			'result'=>$this->loadModel($id),
-		));
-	}
-	
-	//Create a Comment when the customer post a new Comment
-	public function actionCustomerCreate()
-	{
-		;
-	}
 
 	/**
 	 * Lists all models.
 	 */
 	public function actionIndex()
 	{
-		$dataProvider=new CActiveDataProvider('Comment');
+		$dataProvider=new CActiveDataProvider('Product');
 		$this->render('index',array(
 			'dataProvider'=>$dataProvider,
 		));
-	}
-	
-	public function actionTest()
-	{
-		$this->getSiteMarks();
 	}
 
 	/**
@@ -169,10 +178,10 @@ class CommentController extends Controller
 	 */
 	public function actionAdmin()
 	{
-		$model=new Comment('search');
+		$model=new Product('search');
 		$model->unsetAttributes();  // clear any default values
-		if(isset($_GET['Comment']))
-			$model->attributes=$_GET['Comment'];
+		if(isset($_GET['Product']))
+			$model->attributes=$_GET['Product'];
 
 		$this->render('admin',array(
 			'model'=>$model,
@@ -186,21 +195,10 @@ class CommentController extends Controller
 	 */
 	public function loadModel($id)
 	{
-		$model=Comment::model()->findByPk($id);
+		$model=Product::model()->findByPk($id);
 		if($model===null)
 			throw new CHttpException(404,'The requested page does not exist.');
 		return $model;
-	}
-	
-	public function getSiteMarks()
-	{
-		$_model = SiteMark::model()->findByPk('1');
-		return array(
-			'site_service_attitude' => $_model->service_attitude,
-			'site_delivery_speed' => $_model->delivery_speed,
-			'site_service_attitude_times' => $_model->service_attitude_times,
-			'site_delivery_speed_times' => $_model->delivery_speed_times,
-		);
 	}
 
 	/**
@@ -209,7 +207,7 @@ class CommentController extends Controller
 	 */
 	protected function performAjaxValidation($model)
 	{
-		if(isset($_POST['ajax']) && $_POST['ajax']==='comment-form')
+		if(isset($_POST['ajax']) && $_POST['ajax']==='product-form')
 		{
 			echo CActiveForm::validate($model);
 			Yii::app()->end();

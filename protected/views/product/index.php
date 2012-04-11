@@ -1,15 +1,15 @@
 <?php
 $this->breadcrumbs=array(
-	'评论',
+	'Products',
 );
 
 $this->menu=array(
-	array('label'=>'创建评论', 'url'=>array('create')),
-	array('label'=>'管理评论', 'url'=>array('admin')),
+	array('label'=>'Create Product', 'url'=>array('create')),
+	array('label'=>'Manage Product', 'url'=>array('admin')),
 );
 ?>
 
-<h2>评论</h2>
+<h1>Products</h1>
 
 <?php $this->widget('zii.widgets.CListView', array(
 	'dataProvider'=>$dataProvider,
