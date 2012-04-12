@@ -12,6 +12,9 @@
  */
 class SiteMark extends CActiveRecord
 {
+	public $service_attitude_sum;
+	public $delivery_speed_sum;
+	
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @return SiteMark the static model class

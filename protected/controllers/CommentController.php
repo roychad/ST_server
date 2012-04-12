@@ -27,7 +27,7 @@ class CommentController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'commentList' actions
-				'actions'=>array('commentList','commentText'),
+				'actions'=>array('commentList','commentText','commentCreate'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow admin user to perform 'admin','delete','index','view','create' and 'update' actions
@@ -121,20 +121,34 @@ class CommentController extends Controller
 	}
 	
 	//Return commentLists to the customer
-	public function actionCommentList()
+	public function actionCommentList($last_id)
 	{
-		$commentListResults = Comment::model()->findAll();
+		if(!Comment::model()->validateId($last_id))
+		{
+			throw new CHttpException(400,'Invalid request. Invalid last_id!');
+		}
+		
+		$siteMarkModel = SiteMark::model()->findByPk(1);
+		
+		$sql = "SELECT * FROM `st_comment` WHERE id>$last_id LIMIT 30";
+		$commentListResults = Comment::model()->findAllBySql($sql);
 		
 		$this->layout = false;
 		
 		$this->render('_customerList',array(
 			'results'=>$commentListResults,
+			'siteMarkModel' => $siteMarkModel,
 		));
 	}
 	
 	//Return commentText to the customer
 	public function actionCommentText($id)
 	{
+		if(!Comment::model()->validateId($id))
+		{
+			throw new CHttpException(400,'Invalid request. Invalid last_id!');
+		}
+		
 		$this->layout = false;
 		
 		$this->render('_customerText',array(
@@ -143,9 +157,64 @@ class CommentController extends Controller
 	}
 	
 	//Create a Comment when the customer post a new Comment
-	public function actionCustomerCreate()
+	public function actionCommentCreate()
 	{
-		;
+		if(isset($_POST['commentJSON'])&&isJSON($_POST['commentJSON']))
+		{
+			$commentModel = new Comment;
+			$failureMessage;
+			$commentCreatePost = json_decode($_POST['commentJSON']);
+			$commentModel->text = $commentCreatePost['text'];
+			$commentModel->create_time = date("Y-m-d H:i:s");
+			if(Comment::model()->validateContactMethod($commentCreatePost['contact_method']))
+			{
+				$commentModel->contact_method = $commentCreatePost['contact_method'];
+			}
+			else
+			{
+				$failureMessage = '联系方式太长';
+			}
+			if(Comment::model()->validateSiteMark($commentCreatePost['service_attitude']))
+			{
+				$commentModel->service_attitude = $commentCreatePost['service_attitude'];
+			}
+			else
+			{
+				$failureMessage = '服务态度打分不在范围内';
+			}
+			if(Comment::model()->validateSiteMark($commentCreatePost['delivery_speed']))
+			{
+				$commentModel->delivery_speed = $commentCreatePost['delivery_speed'];
+			}
+			else
+			{
+				$failureMessage = '发货速度打分不在范围内';
+			}
+			$siteMarkModel = SiteMark::model()->findByPk(1);
+			$siteMarkModel->service_attitude_sum = $siteMarkModel->service_attitude*$siteMarkModel->service_attitude_time + $commentModel->service_attitude;
+			$siteMarkModel->delivery_speed_sum = $siteMarkModel->delivery_speed*$siteMarkModel->delivery_speed_time + $commentModel->delivery_speed;
+			++$siteMarkModel->service_attitude_time;
+			++$siteMarkModel->delivery_speed_time;
+			$siteMarkModel->service_attitude = $siteMarkModel->service_attitude_sum/$siteMarkModel->service_attitude_time;
+			$siteMarkModel->delivery_speed = $siteMarkModel->delivery_speed_sum/$siteMarkModel->service_attitude_time;
+			
+			$this->layout = false;
+			
+			if($siteMarkModel->save()&&$commentModel->save())
+			{
+				$this->render('_customerCreate',array(
+						'response'=>'success',
+						'message'=> $commentModel->create_time,
+					));
+			}
+			else
+			{
+				$this->render('_customerCreate',array(
+						'response'=>'faliure',
+						'message' => $failureMessage,
+					));
+			}
+		}
 	}
 
 	/**

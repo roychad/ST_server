@@ -68,10 +68,10 @@ class ProductController extends Controller
 				throw new CHttpException(400,'product_id不规范，请确认后重新输入！');
 			}
 			
-			if(!is_dir(Yii::getPathOfAlias('webroot').'/images/photo/')) 
+			if(!is_dir(Yii::getPathOfAlias('webroot').'/images/photos/'.$model->product_id.'/')) 
 			{
-				mkdir(Yii::getPathOfAlias('webroot').'/images/photo/');
-				chmod(Yii::getPathOfAlias('webroot').'/images/photo/', 0777);
+				mkdir(Yii::getPathOfAlias('webroot').'/images/photos/'.$model->product_id.'/');
+				chmod(Yii::getPathOfAlias('webroot').'/images/photos/'.$model->product_id.'/', 0755);
 			}
 			
 			$images = CUploadedFile::getInstancesByName('images');
@@ -81,9 +81,8 @@ class ProductController extends Controller
                 // go through each uploaded image
                 foreach ($images as $image => $pic) 
 				{
-                    if ($pic->saveAs(Yii::getPathOfAlias('webroot').'/images/photo/'.$pic->name)) 
+                    if ($pic->saveAs(Yii::getPathOfAlias('webroot').'/images/photos/'.$model->product_id.'/'.$pic->name)) 
 					{
-						/*
 						$photoModel = new Photo;
 						$photoModel->photo_name = $pic->name;
 						$photoModel->product_id = $model->product_id;
@@ -94,7 +93,6 @@ class ProductController extends Controller
 						{
 							throw new CHttpException(400,'图片上传遇到问题，请重新上传或与开发者联系');
 						}
-						*/
                     }
                     else  // handle the errors here, if you want
 					{
@@ -102,7 +100,6 @@ class ProductController extends Controller
 					}
                 }
 			}
-			/*
 			$model->product_marked_times = 0;
 			$model->product_create_time = date("Y-m-d H:i:s");
 			$model->product_mark = 5;
@@ -110,7 +107,6 @@ class ProductController extends Controller
 			{
 				$this->redirect(array('view','id'=>$model->id));
 			}
-			*/
 		}
 
 		$this->render('create',array(

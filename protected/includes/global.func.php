@@ -63,4 +63,12 @@ function utf8Substr($str, $from, $len)
                        '((?:[\x00-\x7F]|[\xC0-\xFF][\x80-\xBF]+){0,'.$len.'}).*#s',
                        '$1',$str);
 }
+
+//Judge if the string format JSON
+function isJSON($str)
+{
+	return (gettype(json_decode($str,true)) != "array")?false:true;
+}
+
+
 ?>

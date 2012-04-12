@@ -98,4 +98,20 @@ class Comment extends CActiveRecord
 			'criteria'=>$criteria,
 		));
 	}
+	
+	//Confirm the last_id
+	static public function validateId($id)
+	{
+		return preg_match('/^[0-9]{0,10}$/',$last_id)?1:0;
+	}
+	
+	static public function validateContactMethod($contact_method)
+	{
+		return strlen($contact_method)>100?false:true;
+	}
+	
+	static public function validateSiteMark($mark)
+	{
+		return ($mark>5||$mark<1)?false:true;
+	}
 }
