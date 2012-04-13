@@ -27,7 +27,7 @@ class CommentController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'commentList' actions
-				'actions'=>array('commentList','commentText','commentCreate'),
+				'actions'=>array('commentList','commentCreate'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow admin user to perform 'admin','delete','index','view','create' and 'update' actions
@@ -123,37 +123,31 @@ class CommentController extends Controller
 	//Return commentLists to the customer
 	public function actionCommentList($last_id)
 	{
-		if(!Comment::model()->validateId($last_id))
-		{
-			throw new CHttpException(400,'Invalid request. Invalid last_id!');
-		}
-		
-		$siteMarkModel = SiteMark::model()->findByPk(1);
-		
-		$sql = "SELECT * FROM `st_comment` WHERE id>$last_id LIMIT 30";
-		$commentListResults = Comment::model()->findAllBySql($sql);
-		
 		$this->layout = false;
+		$errorMessage = null;
+		$errorMessage = Comment::model()->validateId($last_id)?null:'Error last_id';
 		
-		$this->render('_customerList',array(
-			'results'=>$commentListResults,
-			'siteMarkModel' => $siteMarkModel,
-		));
-	}
-	
-	//Return commentText to the customer
-	public function actionCommentText($id)
-	{
-		if(!Comment::model()->validateId($id))
+		if($errorMessage === null)
 		{
-			throw new CHttpException(400,'Invalid request. Invalid last_id!');
+			$siteMarkModel = SiteMark::model()->findByPk(1);
+		
+			$sql = "SELECT * FROM `st_comment` WHERE id>$last_id LIMIT 30";
+			$commentListResults = Comment::model()->findAllBySql($sql);
+		
+			$this->render('_customerList',array(
+				'results'=>$commentListResults,
+				'siteMarkModel' => $siteMarkModel,
+				'message' => $errorMessage,
+			));
 		}
-		
-		$this->layout = false;
-		
-		$this->render('_customerText',array(
-			'result'=>$this->loadModel($id),
-		));
+		else
+		{
+			$this->render('_customerList',array(
+				'results'=> null,
+				'siteMarkModel'=> null,
+				'message' => $errorMessage,
+			));
+		}
 	}
 	
 	//Create a Comment when the customer post a new Comment
@@ -162,57 +156,53 @@ class CommentController extends Controller
 		if(isset($_POST['commentJSON'])&&isJSON($_POST['commentJSON']))
 		{
 			$commentModel = new Comment;
-			$failureMessage;
+			$errorMessage = null;
 			$commentCreatePost = json_decode($_POST['commentJSON']);
 			$commentModel->text = $commentCreatePost['text'];
 			$commentModel->create_time = date("Y-m-d H:i:s");
-			if(Comment::model()->validateContactMethod($commentCreatePost['contact_method']))
+			$commentModel->contact_method = $commentCreatePost['contact_method'];
+			$commentModel->service_attitude = $commentCreatePost['service_attitude'];
+			$commentModel->delivery_speed = $commentCreatePost['delivery_speed'];
+			if(!Comment::model()->validateContactMethod($commentCreatePost['contact_method']))
 			{
-				$commentModel->contact_method = $commentCreatePost['contact_method'];
+				$errorMessage = '联系方式太长';
 			}
-			else
+			if(!Comment::model()->validateSiteMark($commentCreatePost['service_attitude']))
 			{
-				$failureMessage = '联系方式太长';
+				$errorMessage = '服务态度打分不在范围内';
 			}
-			if(Comment::model()->validateSiteMark($commentCreatePost['service_attitude']))
+			if(!Comment::model()->validateSiteMark($commentCreatePost['delivery_speed']))
 			{
-				$commentModel->service_attitude = $commentCreatePost['service_attitude'];
+				$errorMessage = '发货速度打分不在范围内';
 			}
-			else
-			{
-				$failureMessage = '服务态度打分不在范围内';
-			}
-			if(Comment::model()->validateSiteMark($commentCreatePost['delivery_speed']))
-			{
-				$commentModel->delivery_speed = $commentCreatePost['delivery_speed'];
-			}
-			else
-			{
-				$failureMessage = '发货速度打分不在范围内';
-			}
-			$siteMarkModel = SiteMark::model()->findByPk(1);
-			$siteMarkModel->service_attitude_sum = $siteMarkModel->service_attitude*$siteMarkModel->service_attitude_time + $commentModel->service_attitude;
-			$siteMarkModel->delivery_speed_sum = $siteMarkModel->delivery_speed*$siteMarkModel->delivery_speed_time + $commentModel->delivery_speed;
-			++$siteMarkModel->service_attitude_time;
-			++$siteMarkModel->delivery_speed_time;
-			$siteMarkModel->service_attitude = $siteMarkModel->service_attitude_sum/$siteMarkModel->service_attitude_time;
-			$siteMarkModel->delivery_speed = $siteMarkModel->delivery_speed_sum/$siteMarkModel->service_attitude_time;
 			
 			$this->layout = false;
 			
-			if($siteMarkModel->save()&&$commentModel->save())
+			if($errorMessage === null)
 			{
-				$this->render('_customerCreate',array(
-						'response'=>'success',
-						'message'=> $commentModel->create_time,
-					));
+				$siteMarkModel = SiteMark::model()->findByPk(1);
+				$siteMarkModel->service_attitude_sum = $siteMarkModel->service_attitude*$siteMarkModel->service_attitude_time + $commentModel->service_attitude;
+				$siteMarkModel->delivery_speed_sum = $siteMarkModel->delivery_speed*$siteMarkModel->delivery_speed_time + $commentModel->delivery_speed;
+				++$siteMarkModel->service_attitude_time;
+				++$siteMarkModel->delivery_speed_time;
+				$siteMarkModel->service_attitude = $siteMarkModel->service_attitude_sum/$siteMarkModel->service_attitude_time;
+				$siteMarkModel->delivery_speed = $siteMarkModel->delivery_speed_sum/$siteMarkModel->service_attitude_time;
+			
+				if($siteMarkModel->save()&&$commentModel->save())
+				{
+					$this->render('_customerCreate',array(
+							'response'=>'success',
+							'message'=> $commentModel->create_time,
+						));
+				}
 			}
 			else
 			{
 				$this->render('_customerCreate',array(
-						'response'=>'faliure',
-						'message' => $failureMessage,
-					));
+							'response'=>'failure',
+							'message'=> $errorMessage,
+						));
+			
 			}
 		}
 	}
@@ -226,11 +216,6 @@ class CommentController extends Controller
 		$this->render('index',array(
 			'dataProvider'=>$dataProvider,
 		));
-	}
-	
-	public function actionTest()
-	{
-		$this->getSiteMarks();
 	}
 
 	/**

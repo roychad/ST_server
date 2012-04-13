@@ -70,5 +70,28 @@ function isJSON($str)
 	return (gettype(json_decode($str,true)) != "array")?false:true;
 }
 
+//Judge the id 
+function validateId($id)
+{
+	return (is_numeric($id)&&strlen($id)<11)?true:false;
+}
+
+//Judge the contact_method
+function validateContactMethod($contact_method)
+{
+	return strlen($contact_method)>100?false:true;
+}
+
+//Judge the site_mark
+function validateSiteMark($site_mark)
+{
+	return ($site_mark>5||$site_mark<1)?false:true;
+}
+
+//Judge the product_id
+function validateProductId($product_id)
+{
+	return preg_match('/^[0-9a-zA-Z]{0,50}$/',$product_id)?true:false;
+}
 
 ?>

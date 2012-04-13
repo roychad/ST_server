@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- 主机: localhost
--- 生成日期: 2012 年 04 月 11 日 16:09
+-- 生成日期: 2012 年 04 月 13 日 18:24
 -- 服务器版本: 5.5.16
 -- PHP 版本: 5.3.8
 
@@ -137,7 +137,17 @@ CREATE TABLE IF NOT EXISTS `st_photo` (
   PRIMARY KEY (`id`),
   KEY `fk_photo_coverState` (`cover_state_id`),
   KEY `fk_photo_state` (`photo_state_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=7 ;
+
+--
+-- 转存表中的数据 `st_photo`
+--
+
+INSERT INTO `st_photo` (`id`, `photo_name`, `product_id`, `cover_state_id`, `photo_state_id`) VALUES
+(3, '13085.jpg', '000003', 2, 1),
+(4, '61186e38129a0e7896ddd825.jpg', '000003', 2, 1),
+(5, '61186e38129a0e7896ddd825.jpg', '000004', 2, 1),
+(6, '61186e38129a0e7896ddd825.jpg', '000004', 2, 1);
 
 -- --------------------------------------------------------
 
@@ -173,16 +183,43 @@ CREATE TABLE IF NOT EXISTS `st_product` (
   `product_mark` float NOT NULL,
   `product_create_time` datetime NOT NULL,
   `product_marked_times` int(11) NOT NULL,
+  `mask_photo_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `product_id` (`product_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=9 ;
+  KEY `product_id` (`product_id`),
+  KEY `fk_product_photo` (`mask_photo_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=12 ;
 
 --
 -- 转存表中的数据 `st_product`
 --
 
-INSERT INTO `st_product` (`id`, `product_id`, `product_name`, `product_introduce`, `product_mark`, `product_create_time`, `product_marked_times`) VALUES
-(2, '000001', 'iphone手机壳', '这是一个iphone手机壳', 5, '2012-04-02 00:00:00', 0);
+INSERT INTO `st_product` (`id`, `product_id`, `product_name`, `product_introduce`, `product_mark`, `product_create_time`, `product_marked_times`, `mask_photo_id`) VALUES
+(2, '000001', 'iphone手机壳', '这是一个iphone手机壳', 5, '2012-04-02 00:00:00', 0, 3),
+(11, '000004', 'another test', 'another test', 5, '2012-04-13 18:13:56', 0, 5);
+
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `st_product_comment`
+--
+
+CREATE TABLE IF NOT EXISTS `st_product_comment` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `product_id` varchar(50) NOT NULL,
+  `text` text NOT NULL,
+  `create_time` datetime NOT NULL,
+  `contact_method` varchar(100) NOT NULL,
+  `amazing_level` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_comment_product` (`product_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
+
+--
+-- 转存表中的数据 `st_product_comment`
+--
+
+INSERT INTO `st_product_comment` (`id`, `product_id`, `text`, `create_time`, `contact_method`, `amazing_level`) VALUES
+(1, '000001', 'product comment test', '2012-04-13 00:00:00', 'roychad0421@gmail.com', 5);
 
 -- --------------------------------------------------------
 
@@ -267,6 +304,18 @@ ALTER TABLE `st_order`
 ALTER TABLE `st_photo`
   ADD CONSTRAINT `fk_photo_coverState` FOREIGN KEY (`cover_state_id`) REFERENCES `st_cover_state` (`id`),
   ADD CONSTRAINT `fk_photo_state` FOREIGN KEY (`photo_state_id`) REFERENCES `st_photo_state` (`id`);
+
+--
+-- 限制表 `st_product`
+--
+ALTER TABLE `st_product`
+  ADD CONSTRAINT `fk_product_photo` FOREIGN KEY (`mask_photo_id`) REFERENCES `st_photo` (`id`);
+
+--
+-- 限制表 `st_product_comment`
+--
+ALTER TABLE `st_product_comment`
+  ADD CONSTRAINT `fk_comment_product` FOREIGN KEY (`product_id`) REFERENCES `st_product` (`product_id`);
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

@@ -3,8 +3,7 @@
 $json = array();
 
 $json['message'] = $message;
-$json['service_attitude'] = ($json['message']===null)?$siteMarkModel->service_attitude:null;
-$json['delivery_speed'] = ($json['message']===null)?$siteMarkModel->delivery_speed:null;
+$json['amazing_level'] = ($json['message']===null)?$productModel->product_mark:null;
 $json['commentList'] = null;
 
 
@@ -15,8 +14,7 @@ if($message === null)
 		$json['commentList'][$key]['id'] = $result['id'];
 		$json['commentList'][$key]['text'] = $result['text'];
 		$json['commentList'][$key]['create_time'] = $result['create_time'];
-		$json['commentList'][$key]['service_attitude'] = $result['service_attitude'];
-		$json['commentList'][$key]['delivery_speed'] = $result['delivery_speed'];
+		$json['commentList'][$key]['amazing_level'] = $result['amazing_level'];
 	}
 }
 

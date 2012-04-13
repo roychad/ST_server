@@ -53,25 +53,25 @@ class ProductController extends Controller
 	 */
 	public function actionCreate()
 	{
-		$model=new Product;
+		$productModel=new Product;
 
 		// Uncomment the following line if AJAX validation is needed
-		$this->performAjaxValidation($model);
+		$this->performAjaxValidation($productModel);
 
 		if(isset($_POST['Product']))
 		{
 			
-			$model->attributes=$_POST['Product'];
+			$productModel->attributes=$_POST['Product'];
 			
-			if(!$model->validateProductId())
+			if(!$productModel->validateProductId())
 			{
 				throw new CHttpException(400,'product_id不规范，请确认后重新输入！');
 			}
 			
-			if(!is_dir(Yii::getPathOfAlias('webroot').'/images/photos/'.$model->product_id.'/')) 
+			if(!is_dir(Yii::getPathOfAlias('webroot').'/images/photos/'.$productModel->product_id.'/')) 
 			{
-				mkdir(Yii::getPathOfAlias('webroot').'/images/photos/'.$model->product_id.'/');
-				chmod(Yii::getPathOfAlias('webroot').'/images/photos/'.$model->product_id.'/', 0755);
+				mkdir(Yii::getPathOfAlias('webroot').'/images/photos/'.$productModel->product_id.'/');
+				chmod(Yii::getPathOfAlias('webroot').'/images/photos/'.$productModel->product_id.'/', 0755);
 			}
 			
 			$images = CUploadedFile::getInstancesByName('images');
@@ -81,11 +81,11 @@ class ProductController extends Controller
                 // go through each uploaded image
                 foreach ($images as $image => $pic) 
 				{
-                    if ($pic->saveAs(Yii::getPathOfAlias('webroot').'/images/photos/'.$model->product_id.'/'.$pic->name)) 
+                    if ($pic->saveAs(Yii::getPathOfAlias('webroot').'/images/photos/'.$productModel->product_id.'/'.$pic->name)) 
 					{
 						$photoModel = new Photo;
 						$photoModel->photo_name = $pic->name;
-						$photoModel->product_id = $model->product_id;
+						$photoModel->product_id = $productModel->product_id;
 						$photoModel->cover_state_id = 2;
 						$photoModel->photo_state_id = 1;
 						
@@ -99,18 +99,23 @@ class ProductController extends Controller
 						;
 					}
                 }
+				$productModel->mask_photo_id = Photo::model()->findByAttributes(array('product_id'=>$productModel->product_id))->id;
 			}
-			$model->product_marked_times = 0;
-			$model->product_create_time = date("Y-m-d H:i:s");
-			$model->product_mark = 5;
-			if($model->save())
+			$productModel->product_marked_times = 0;
+			$productModel->product_create_time = date("Y-m-d H:i:s");
+			$productModel->product_mark = 5;
+			if(!isset($productModel->mask_photo_id))
 			{
-				$this->redirect(array('view','id'=>$model->id));
+				$productModel->mask_photo_id = 3;
+			}
+			if($productModel->save())
+			{
+				$this->redirect(array('view','id'=>$productModel->id));
 			}
 		}
 
 		$this->render('create',array(
-			'model'=>$model,
+			'model'=>$productModel,
 		));
 	}
 

@@ -11,12 +11,16 @@
  * @property double $product_mark
  * @property string $product_create_time
  * @property integer $product_marked_times
+ * @property integer $mask_photo_id
  *
  * The followings are the available model relations:
- * @property Photo[] $photos
+ * @property Photo $maskPhoto
+ * @property ProductComment[] $productComments
  */
 class Product extends CActiveRecord
 {
+	public $product_mark_sum;
+
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @return Product the static model class
@@ -42,15 +46,15 @@ class Product extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('product_id, product_name, product_introduce, product_mark, product_create_time, product_marked_times', 'required'),
-			array('product_marked_times', 'numerical', 'integerOnly'=>true),
+			array('product_id, product_name, product_introduce, product_mark, product_create_time, product_marked_times, mask_photo_id', 'required'),
+			array('product_marked_times, mask_photo_id', 'numerical', 'integerOnly'=>true),
 			array('product_mark', 'numerical'),
 			array('product_id', 'length', 'max'=>50),
 			array('product_name', 'length', 'max'=>100),
 			array('product_introduce', 'length', 'max'=>200),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('id, product_id, product_name, product_introduce, product_mark, product_create_time, product_marked_times', 'safe', 'on'=>'search'),
+			array('id, product_id, product_name, product_introduce, product_mark, product_create_time, product_marked_times, mask_photo_id', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -62,7 +66,8 @@ class Product extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'photos' => array(self::HAS_MANY, 'Photo', 'product_id'),
+			'maskPhoto' => array(self::BELONGS_TO, 'Photo', 'mask_photo_id'),
+			'productComments' => array(self::HAS_MANY, 'ProductComment', 'product_id'),
 		);
 	}
 
@@ -79,6 +84,7 @@ class Product extends CActiveRecord
 			'product_mark' => 'Product Mark',
 			'product_create_time' => 'Product Create Time',
 			'product_marked_times' => 'Product Marked Times',
+			'mask_photo_id' => 'Mask Photo',
 		);
 	}
 
@@ -100,6 +106,7 @@ class Product extends CActiveRecord
 		$criteria->compare('product_mark',$this->product_mark);
 		$criteria->compare('product_create_time',$this->product_create_time,true);
 		$criteria->compare('product_marked_times',$this->product_marked_times);
+		$criteria->compare('mask_photo_id',$this->mask_photo_id);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
@@ -108,6 +115,6 @@ class Product extends CActiveRecord
 	
 	public function validateProductId()
 	{
-		return preg_match('/^[0-9a-zA-Z]{0,50}$/',$this->product_id)?1:0;
+		return validateProductId($this->product_id);
 	}
 }

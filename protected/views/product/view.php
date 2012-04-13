@@ -25,5 +25,6 @@ $this->menu=array(
 		'product_mark',
 		'product_create_time',
 		'product_marked_times',
+		'mask_photo_id',
 	),
 )); ?>
