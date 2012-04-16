@@ -7,13 +7,11 @@
  * @property integer $id
  * @property string $photo_name
  * @property string $product_id
- * @property integer $cover_state_id
  * @property integer $photo_state_id
  *
  * The followings are the available model relations:
- * @property CoverState $coverState
- * @property Product $product
  * @property PhotoState $photoState
+ * @property Product[] $products
  */
 class Photo extends CActiveRecord
 {
@@ -42,13 +40,13 @@ class Photo extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('photo_name, product_id, cover_state_id, photo_state_id', 'required'),
-			array('cover_state_id, photo_state_id', 'numerical', 'integerOnly'=>true),
+			array('photo_name, product_id, photo_state_id', 'required'),
+			array('photo_state_id', 'numerical', 'integerOnly'=>true),
 			array('photo_name', 'length', 'max'=>32),
 			array('product_id', 'length', 'max'=>50),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('id, photo_name, product_id, cover_state_id, photo_state_id', 'safe', 'on'=>'search'),
+			array('id, photo_name, product_id, photo_state_id', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -60,9 +58,8 @@ class Photo extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'coverState' => array(self::BELONGS_TO, 'CoverState', 'cover_state_id'),
-			'product' => array(self::BELONGS_TO, 'Product', 'product_id'),
 			'photoState' => array(self::BELONGS_TO, 'PhotoState', 'photo_state_id'),
+			'products' => array(self::HAS_MANY, 'Product', 'mask_photo_id'),
 		);
 	}
 
@@ -75,7 +72,6 @@ class Photo extends CActiveRecord
 			'id' => 'ID',
 			'photo_name' => 'Photo Name',
 			'product_id' => 'Product',
-			'cover_state_id' => 'Cover State',
 			'photo_state_id' => 'Photo State',
 		);
 	}
@@ -94,7 +90,6 @@ class Photo extends CActiveRecord
 		$criteria->compare('id',$this->id);
 		$criteria->compare('photo_name',$this->photo_name,true);
 		$criteria->compare('product_id',$this->product_id,true);
-		$criteria->compare('cover_state_id',$this->cover_state_id);
 		$criteria->compare('photo_state_id',$this->photo_state_id);
 
 		return new CActiveDataProvider($this, array(

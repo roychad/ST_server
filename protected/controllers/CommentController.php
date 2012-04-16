@@ -157,7 +157,7 @@ class CommentController extends Controller
 		{
 			$commentModel = new Comment;
 			$errorMessage = null;
-			$commentCreatePost = json_decode($_POST['commentJSON']);
+			$commentCreatePost = json_decode($_POST['commentJSON'],true);
 			$commentModel->text = $commentCreatePost['text'];
 			$commentModel->create_time = date("Y-m-d H:i:s");
 			$commentModel->contact_method = $commentCreatePost['contact_method'];
@@ -180,19 +180,28 @@ class CommentController extends Controller
 			
 			if($errorMessage === null)
 			{
-				$siteMarkModel = SiteMark::model()->findByPk(1);
-				$siteMarkModel->service_attitude_sum = $siteMarkModel->service_attitude*$siteMarkModel->service_attitude_time + $commentModel->service_attitude;
-				$siteMarkModel->delivery_speed_sum = $siteMarkModel->delivery_speed*$siteMarkModel->delivery_speed_time + $commentModel->delivery_speed;
-				++$siteMarkModel->service_attitude_time;
-				++$siteMarkModel->delivery_speed_time;
-				$siteMarkModel->service_attitude = $siteMarkModel->service_attitude_sum/$siteMarkModel->service_attitude_time;
-				$siteMarkModel->delivery_speed = $siteMarkModel->delivery_speed_sum/$siteMarkModel->service_attitude_time;
-			
+				$siteMarkModel = SiteMark::model()->findByAttributes(array('id'=>'1'));
+				$siteMarkModel->service_attitude_sum = $siteMarkModel->service_attitude*$siteMarkModel->service_attitude_times + $commentModel->service_attitude;
+				$siteMarkModel->delivery_speed_sum = $siteMarkModel->delivery_speed*$siteMarkModel->delivery_speed_times + $commentModel->delivery_speed;
+				++$siteMarkModel->service_attitude_times;
+				++$siteMarkModel->delivery_speed_times;
+				$siteMarkModel->service_attitude = $siteMarkModel->service_attitude_sum/$siteMarkModel->service_attitude_times;
+				$siteMarkModel->delivery_speed = $siteMarkModel->delivery_speed_sum/$siteMarkModel->service_attitude_times;
+				
 				if($siteMarkModel->save()&&$commentModel->save())
 				{
 					$this->render('_customerCreate',array(
 							'response'=>'success',
 							'message'=> $commentModel->create_time,
+						));
+				}
+				else
+				{
+					$errorMessage = '服务器错误！';
+					
+					$this->render('_customerCreate',array(
+							'response'=>'failure',
+							'message'=> $errorMessage,
 						));
 				}
 			}

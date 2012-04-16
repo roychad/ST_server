@@ -20,6 +20,9 @@
 class Product extends CActiveRecord
 {
 	public $product_mark_sum;
+	public $product_mask_photo_info;
+	public $product_thumbnail;
+	public $product_images = array();
 
 	/**
 	 * Returns the static model of the specified AR class.
@@ -113,8 +116,39 @@ class Product extends CActiveRecord
 		));
 	}
 	
+	//Confirm the exist product_id
+	static public function validateExistProductId($product_id)
+	{
+		if(validateProductId($product_id))
+		{
+			$sql_getProduct = "SELECT * FROM `st_product` WHERE product_id = '$product_id'";
+			$results = Yii::app()->db->createCommand($sql_getProduct)->queryAll();
+			return isset($results[0])?true:false;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	
+	//Confirm the product_id
 	public function validateProductId()
 	{
 		return validateProductId($this->product_id);
+	}
+	
+	//Confirm the id
+	static public function validateId($id)
+	{
+		if(validateId($id))
+		{
+			$sql_getProduct = "SELECT * FROM `st_product` WHERE id > $id";
+			$results = Yii::app()->db->createCommand($sql_getProduct)->queryAll();
+			return isset($results[0])?true:false;
+		}
+		else
+		{
+			return false;
+		}
 	}
 }

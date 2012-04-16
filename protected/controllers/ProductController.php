@@ -26,6 +26,10 @@ class ProductController extends Controller
 	public function accessRules()
 	{
 		return array(
+			array('allow',
+				'actions'=>array('productList','productDetail'),
+				'users'=>array('*'),
+			),
 			array('allow', // allow admin user to perform 'admin','delete','index','view','create' and 'update' actions
 				'actions'=>array('admin','delete','index','view','create','update'),
 				'expression'=>'Yii::app()->user->isAdmin',
@@ -86,7 +90,6 @@ class ProductController extends Controller
 						$photoModel = new Photo;
 						$photoModel->photo_name = $pic->name;
 						$photoModel->product_id = $productModel->product_id;
-						$photoModel->cover_state_id = 2;
 						$photoModel->photo_state_id = 1;
 						
 						if(!$photoModel->save())
@@ -99,7 +102,22 @@ class ProductController extends Controller
 						;
 					}
                 }
-				$productModel->mask_photo_id = Photo::model()->findByAttributes(array('product_id'=>$productModel->product_id))->id;
+				$photoModel = Photo::model()->findByAttributes(array('product_id'=>$productModel->product_id));
+				$image = Yii::app()->image->load(Yii::getPathOfAlias('webroot').'/images/photos/'.$productModel->product_id.'/'.$photoModel->photo_name);
+				$image->resize(100, 100,Image::NONE);
+				if(!is_dir(Yii::getPathOfAlias('webroot').'/images/photos/'.$productModel->product_id.'/thumb/')) 
+				{
+					mkdir(Yii::getPathOfAlias('webroot').'/images/photos/'.$productModel->product_id.'/thumb/');
+					chmod(Yii::getPathOfAlias('webroot').'/images/photos/'.$productModel->product_id.'/thumb/', 0755);
+				}
+				if($image->save(Yii::getPathOfAlias('webroot').'/images/photos/'.$productModel->product_id.'/thumb/'.$photoModel->photo_name))
+				{
+					$productModel->mask_photo_id = $photoModel->id;
+				}
+				else
+				{
+					
+				}
 			}
 			$productModel->product_marked_times = 0;
 			$productModel->product_create_time = date("Y-m-d H:i:s");
@@ -117,6 +135,72 @@ class ProductController extends Controller
 		$this->render('create',array(
 			'model'=>$productModel,
 		));
+	}
+	
+	//Return a list of product to the customer
+	public function actionProductList($last_id=0)
+	{
+		$this->layout = false;
+		$errorMessage = null;
+		$errorMessage = Product::model()->validateId($last_id)?null:'Error last_id';
+		
+		if($errorMessage === null)
+		{
+			$sql_getProductList = "SELECT * FROM `st_product` WHERE id>$last_id LIMIT 30";
+			$productListResults = Product::model()->findAllBySql($sql_getProductList);
+			
+			foreach($productListResults as $product)
+			{
+				$product->product_thumbnail = '/images/photos/'.$product->product_id.'/thumb/'.Photo::model()->findByAttributes(array('id'=>$product->mask_photo_id))->photo_name;
+			}
+		
+			$this->render('_customerList',array(
+				'results'=>$productListResults,
+				'message' => $errorMessage,
+			));
+		}
+		else
+		{
+			$this->render('_customerList',array(
+				'results'=> null,
+				'message' => $errorMessage,
+			));
+		}
+	}
+	
+	//Return the detail of the product to the customer
+	public function actionProductDetail($product_id = null,$last_id = 0)
+	{
+		$this->layout = false;
+		$errorMessage = null;
+		$errorMessage = Product::model()->validateExistProductId($product_id)?null:'Error product_id';
+		$errorMessage = Product::model()->validateId($last_id)?null:'Error last_id';
+		
+		if($errorMessage === null)
+		{
+			$productModel = Product::model()->findByAttributes(array('product_id'=>$product_id));
+			$images = Photo::model()->findAllByAttributes(array('product_id'=>$product_id,'photo_state_id'=>'1'));
+			foreach($images as $key => $image)
+			{
+				$productModel->product_images[$key] = '/images/photos/'.$productModel->product_id.'/'.$image->photo_name;
+			}
+			$sql_getProductComment = "SELECT * FROM `st_product_comment` WHERE id > $last_id and product_id = '$product_id'";
+			$productCommentList = ProductComment::model()->findAllBySql($sql_getProductComment);
+			$this->render('_customerDetail',array(
+				'product'=> $productModel,
+				'productCommentList' => $productCommentList,
+				'message' => $errorMessage,
+			));
+		}
+		else
+		{
+			$this->render('_customerDetail',array(
+				'product'=> null,
+				'productCommentList' => null,
+				'message' => $errorMessage,
+			));
+		}
+		
 	}
 
 	/**

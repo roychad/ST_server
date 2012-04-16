@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- 主机: localhost
--- 生成日期: 2012 年 04 月 13 日 18:24
+-- 生成日期: 2012 年 04 月 16 日 04:50
 -- 服务器版本: 5.5.16
 -- PHP 版本: 5.3.8
 
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `st_comment` (
   `service_attitude` int(11) NOT NULL,
   `delivery_speed` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=4 ;
 
 --
 -- 转存表中的数据 `st_comment`
@@ -42,27 +42,8 @@ CREATE TABLE IF NOT EXISTS `st_comment` (
 
 INSERT INTO `st_comment` (`id`, `text`, `create_time`, `contact_method`, `service_attitude`, `delivery_speed`) VALUES
 (1, 'comment test 1', '2012-03-14 00:00:00', NULL, 5, 5),
-(2, 'comment test 2', '2012-03-27 00:00:00', NULL, 5, 5);
-
--- --------------------------------------------------------
-
---
--- 表的结构 `st_cover_state`
---
-
-CREATE TABLE IF NOT EXISTS `st_cover_state` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `cover_state` varchar(10) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
-
---
--- 转存表中的数据 `st_cover_state`
---
-
-INSERT INTO `st_cover_state` (`id`, `cover_state`) VALUES
-(1, 'yes'),
-(2, 'no');
+(2, 'comment test 2', '2012-03-27 00:00:00', NULL, 5, 5),
+(3, 'Hello', '2012-04-15 13:30:56', 'hello@gmail.com', 5, 5);
 
 -- --------------------------------------------------------
 
@@ -132,10 +113,8 @@ CREATE TABLE IF NOT EXISTS `st_photo` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `photo_name` varchar(32) NOT NULL,
   `product_id` varchar(50) NOT NULL,
-  `cover_state_id` int(11) NOT NULL,
   `photo_state_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `fk_photo_coverState` (`cover_state_id`),
   KEY `fk_photo_state` (`photo_state_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=7 ;
 
@@ -143,11 +122,11 @@ CREATE TABLE IF NOT EXISTS `st_photo` (
 -- 转存表中的数据 `st_photo`
 --
 
-INSERT INTO `st_photo` (`id`, `photo_name`, `product_id`, `cover_state_id`, `photo_state_id`) VALUES
-(3, '13085.jpg', '000003', 2, 1),
-(4, '61186e38129a0e7896ddd825.jpg', '000003', 2, 1),
-(5, '61186e38129a0e7896ddd825.jpg', '000004', 2, 1),
-(6, '61186e38129a0e7896ddd825.jpg', '000004', 2, 1);
+INSERT INTO `st_photo` (`id`, `photo_name`, `product_id`, `photo_state_id`) VALUES
+(3, '13085.jpg', '000003', 1),
+(4, '61186e38129a0e7896ddd825.jpg', '000003', 1),
+(5, '61186e38129a0e7896ddd825.jpg', '000004', 1),
+(6, '61186e38129a0e7896ddd825.jpg', '000004', 1);
 
 -- --------------------------------------------------------
 
@@ -241,7 +220,7 @@ CREATE TABLE IF NOT EXISTS `st_site_mark` (
 --
 
 INSERT INTO `st_site_mark` (`id`, `service_attitude`, `delivery_speed`, `service_attitude_times`, `delivery_speed_times`) VALUES
-(1, 5, 5, 1, 1);
+(1, 5, 5, 2, 2);
 
 -- --------------------------------------------------------
 
@@ -302,7 +281,6 @@ ALTER TABLE `st_order`
 -- 限制表 `st_photo`
 --
 ALTER TABLE `st_photo`
-  ADD CONSTRAINT `fk_photo_coverState` FOREIGN KEY (`cover_state_id`) REFERENCES `st_cover_state` (`id`),
   ADD CONSTRAINT `fk_photo_state` FOREIGN KEY (`photo_state_id`) REFERENCES `st_photo_state` (`id`);
 
 --

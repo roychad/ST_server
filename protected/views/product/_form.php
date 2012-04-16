@@ -26,10 +26,12 @@
 		<?php echo $form->error($model,'product_introduce'); ?>
 	</div>
 	
+	<p>默认<span class="required">第一张</span>作为封面，若要修改请在完成后点击修改产品</p>
+	
 	<?php
 		$this->widget('CMultiFileUpload', array(
 			'name' => 'images',
-			'accept'=>'jpg|gif',
+			'accept'=>'jpeg|gif|png|jpg',
 			'options'=>array(
 					'onFileSelect'=>'function(e, v, m){}',
 					'afterFileSelect'=>'function(e, v, m){ }',
