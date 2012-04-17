@@ -31,7 +31,7 @@ class ProductController extends Controller
 				'users'=>array('*'),
 			),
 			array('allow', // allow admin user to perform 'admin','delete','index','view','create' and 'update' actions
-				'actions'=>array('admin','delete','index','view','create','update'),
+				'actions'=>array('admin','delete','index','view','create','update','deletePhoto','setThumbnail'),
 				'expression'=>'Yii::app()->user->isAdmin',
 			),
 			array('deny',  // deny all users
@@ -46,8 +46,12 @@ class ProductController extends Controller
 	 */
 	public function actionView($id)
 	{
+		$model = $this->loadModel($id);
+		$dataProvider = Photo::model()->findAllByAttributes(array('product_id'=>$model->product_id));
+		
 		$this->render('view',array(
-			'model'=>$this->loadModel($id),
+			'model'=>$model,
+			'photos'=>$dataProvider,
 		));
 	}
 
@@ -102,6 +106,7 @@ class ProductController extends Controller
 						;
 					}
                 }
+				//Create the thumbnail for the product
 				$photoModel = Photo::model()->findByAttributes(array('product_id'=>$productModel->product_id));
 				$image = Yii::app()->image->load(Yii::getPathOfAlias('webroot').'/images/photos/'.$productModel->product_id.'/'.$photoModel->photo_name);
 				$image->resize(100, 100,Image::NONE);
@@ -116,7 +121,7 @@ class ProductController extends Controller
 				}
 				else
 				{
-					
+					;
 				}
 			}
 			$productModel->product_marked_times = 0;
@@ -210,20 +215,58 @@ class ProductController extends Controller
 	 */
 	public function actionUpdate($id)
 	{
-		$model=$this->loadModel($id);
+		$productModel=$this->loadModel($id);
 
 		// Uncomment the following line if AJAX validation is needed
-		// $this->performAjaxValidation($model);
+		$this->performAjaxValidation($productModel);
 
 		if(isset($_POST['Product']))
 		{
-			$model->attributes=$_POST['Product'];
-			if($model->save())
-				$this->redirect(array('view','id'=>$model->id));
+			$productModel->attributes=$_POST['Product'];
+			
+			if(!$productModel->validateProductId())
+			{
+				throw new CHttpException(400,'product_id不规范，请确认后重新输入！');
+			}
+			
+			$images = CUploadedFile::getInstancesByName('images');
+			
+			if (isset($images) && count($images) > 0) 
+			{
+                // go through each uploaded image
+                foreach ($images as $image => $pic) 
+				{
+                    if ($pic->saveAs(Yii::getPathOfAlias('webroot').'/images/photos/'.$productModel->product_id.'/'.$pic->name)) 
+					{
+						$photoModel = new Photo;
+						$photoModel->photo_name = $pic->name;
+						$photoModel->product_id = $productModel->product_id;
+						$photoModel->photo_state_id = 1;
+						
+						if(!$photoModel->save())
+						{
+							throw new CHttpException(400,'图片上传遇到问题，请重新上传或与开发者联系');
+						}
+                    }
+                    else  // handle the errors here, if you want
+					{
+						;
+					}
+                }
+			}
+			//Set the default thumbnail
+			if(!isset($productModel->mask_photo_id))
+			{
+				$productModel->mask_photo_id = 3;
+			}
+			if($productModel->save())
+			{
+				$this->redirect(array('view','id'=>$productModel->id));
+			}
 		}
 
 		$this->render('update',array(
-			'model'=>$model,
+			'model'=>$productModel,
 		));
 	}
 
@@ -272,6 +315,65 @@ class ProductController extends Controller
 			'model'=>$model,
 		));
 	}
+	
+	//Delete photo which will not be used
+	public function actionDeletePhoto($id,$modelId)
+	{
+		if(Yii::app()->request->isPostRequest)
+		{
+			$productModel = Product::model()->findByPk($modelId);
+			if(!Product::model()->findByAttributes(array('mask_photo_id'=>$id)))
+			{
+				$photoModel = $this->loadPhoto($id);
+				$photoModel->delete();
+				if(file_exists(Yii::getPathOfAlias('webroot').'/images/photos/'.$productModel->product_id.'/'.$photoModel->photo_name))
+				{
+					unlink(Yii::getPathOfAlias('webroot').'/images/photos/'.$productModel->product_id.'/'.$photoModel->photo_name);
+				}
+			}
+			else
+			{
+				throw new CHttpException(400,'Invalid request. This photo is a thumbnail. You can not delete it now.');
+			}
+
+			$this->redirect(array('view','id'=>$modelId));
+		}
+		else
+			throw new CHttpException(400,'Invalid request. Please do not repeat this request again.');
+	}
+	
+	
+	//Set the thumbnail for the product
+	public function actionSetThumbnail($id,$modelId)
+	{
+		$productModel = $this->loadModel($modelId);
+		$photoModel = $this->loadPhoto($id);
+		$tmpThumbnail = $productModel->mask_photo_id;
+		
+		$image = Yii::app()->image->load(Yii::getPathOfAlias('webroot').'/images/photos/'.$productModel->product_id.'/'.$photoModel->photo_name);
+		$image->resize(100, 100,Image::NONE);
+		$productModel->mask_photo_id = $photoModel->id;
+		var_dump('masknow:'.$productModel->mask_photo_id);
+		var_dump('thumb'.$tmpThumbnail);
+		if(!is_dir(Yii::getPathOfAlias('webroot').'/images/photos/'.$productModel->product_id.'/thumb/')) 
+		{
+			mkdir(Yii::getPathOfAlias('webroot').'/images/photos/'.$productModel->product_id.'/thumb/');
+			chmod(Yii::getPathOfAlias('webroot').'/images/photos/'.$productModel->product_id.'/thumb/', 0755);
+		}
+		if($image->save(Yii::getPathOfAlias('webroot').'/images/photos/'.$productModel->product_id.'/thumb/'.$photoModel->photo_name)&&$productModel->save())
+		{
+			if(file_exists(Yii::getPathOfAlias('webroot').'/images/photos/'.$productModel->product_id.'/thumb/'.$this->loadPhoto($tmpThumbnail)->photo_name))
+			{
+				unlink(Yii::getPathOfAlias('webroot').'/images/photos/'.$productModel->product_id.'/thumb/'.$this->loadPhoto($tmpThumbnail)->photo_name);
+			}
+		}
+		else
+		{
+			;
+		}
+		
+		$this->redirect(array('view','id'=>$modelId));
+	}
 
 	/**
 	 * Returns the data model based on the primary key given in the GET variable.
@@ -281,6 +383,15 @@ class ProductController extends Controller
 	public function loadModel($id)
 	{
 		$model=Product::model()->findByPk($id);
+		if($model===null)
+			throw new CHttpException(404,'The requested page does not exist.');
+		return $model;
+	}
+	
+	//Load the photo by id
+	protected function loadPhoto($id)
+	{
+		$model=Photo::model()->findByPk($id);
 		if($model===null)
 			throw new CHttpException(404,'The requested page does not exist.');
 		return $model;

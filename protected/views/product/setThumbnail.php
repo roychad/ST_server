@@ -1,9 +1,22 @@
+<?php
+$this->breadcrumbs=array(
+	'Products'=>array('index'),
+	'setThumbnail',
+);
+
+$this->menu=array(
+	array('label'=>'List Product', 'url'=>array('index')),
+	array('label'=>'Manage Product', 'url'=>array('admin')),
+);
+?>
+
+<h1>Change Thumbnail</h1>
+
 <div class="form">
 
 <?php $form=$this->beginWidget('CActiveForm', array(
-	'id'=>'product-form',
+	'id'=>'thumbnail-form',
 	'enableAjaxValidation'=>true,
-	'htmlOptions' =>array('enctype' => 'multipart/form-data'),
 )); ?>
 
 	<?php echo $form->errorSummary($model); ?>
@@ -26,7 +39,7 @@
 		<?php echo $form->error($model,'product_introduce'); ?>
 	</div>
 	
-	<p>默认<span class="required">第一张</span>作为封面，若要修改请在完成后点击设置封面</p>
+	<p>Ĭ��<span class="required">��һ��</span>��Ϊ���棬��Ҫ�޸�������ɺ����޸Ĳ�Ʒ</p>
 	
 	<?php
 		$this->widget('CMultiFileUpload', array(
@@ -44,7 +57,7 @@
 	?>
 
 	<div class="row buttons">
-		<?php echo CHtml::submitButton($model->isNewRecord ? '创建' : '修改'); ?>
+		<?php echo CHtml::submitButton($model->isNewRecord ? '����' : '�޸�'); ?>
 	</div>
 
 <?php $this->endWidget(); ?>

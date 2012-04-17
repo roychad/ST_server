@@ -27,4 +27,19 @@ $this->menu=array(
 		'product_marked_times',
 		'mask_photo_id',
 	),
-)); ?>
+)); 
+
+echo '<div class="view">';
+
+foreach($photos as $photo)
+{
+	echo '<div class="view">';
+	echo ($photo->id === $model->mask_photo_id)?'封面（不能删除）<br />':'';
+	echo CHtml::image(Yii::app()->baseUrl.'/images/photos/'.$model->product_id.'/'.$photo->photo_name,'图片的说明',array('width'=>'200px','height'=>'150px')).'<br />'; 
+	echo CHtml::ajaxButton('删除', '#', array(),array('submit'=>array('deletePhoto','id'=>$photo->id,'modelId'=>$model->id)));
+	echo ($photo->id !== $model->mask_photo_id)?CHtml::ajaxButton('设为封面', '#', array(),array('submit'=>array('setThumbnail','id'=>$photo->id,'modelId'=>$model->id))):'';
+	echo '</div>';
+}
+echo '</div>';
+
+?>
