@@ -2,22 +2,28 @@
 
 $json = array();
 $json['message'] = $message;
-$json['product'] = array();
+$json['id'] = null;
+$json['product_id'] = null;
+$json['product_name'] = null;
+$json['product_introduce'] = null;
+$json['product_mark'] = null;
+$json['product_create_time'] = null;
+$json['product_images'] = null;
 $json['productCommentList'] = array();
 
 //var_dump($json['product']->product_id);
 
 if($message === null)
 {
-	$json['product']['id'] = $product->id;
-	$json['product']['product_id'] = $product->product_id;
-	$json['product']['product_name'] = $product->product_name;
-	$json['product']['product_introduce'] = $product->product_introduce;
-	$json['product']['product_mark'] = $product->product_mark;
-	$json['product']['product_create_time'] = $product->product_create_time;
+	$json['id'] = $product->id;
+	$json['product_id'] = $product->product_id;
+	$json['product_name'] = $product->product_name;
+	$json['product_introduce'] = $product->product_introduce;
+	$json['product_mark'] = $product->product_mark;
+	$json['product_create_time'] = $product->product_create_time;
 	foreach($product->product_images as $key => $image)
 	{
-		$json['product']['product_images'][$key]['name'] = $image;
+		$json['product_images'][$key]['name'] = $image;
 	}
 	
 	foreach($productCommentList as $key => $productComment)
