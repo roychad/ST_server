@@ -31,7 +31,7 @@ class ProductController extends Controller
 				'users'=>array('*'),
 			),
 			array('allow', // allow admin user to perform 'admin','delete','index','view','create' and 'update' actions
-				'actions'=>array('admin','delete','index','view','create','update','deletePhoto','setThumbnail'),
+				'actions'=>array('admin','delete','deleteComment','index','view','create','update','deletePhoto','setThumbnail'),
 				'expression'=>'Yii::app()->user->isAdmin',
 			),
 			array('deny',  // deny all users
@@ -47,11 +47,13 @@ class ProductController extends Controller
 	public function actionView($id)
 	{
 		$model = $this->loadModel($id);
-		$dataProvider = Photo::model()->findAllByAttributes(array('product_id'=>$model->product_id));
-		
+		$photoDataProvider = Photo::model()->findAllByAttributes(array('product_id'=>$model->product_id));
+		//$commentDataProvider = ProductComment::model()->findAllByAttributes(array('product_id'=>$model->product_id));
+
 		$this->render('view',array(
 			'model'=>$model,
-			'photos'=>$dataProvider,
+			'photos'=>$photoDataProvider,
+			'comments' => new ProductComment,
 		));
 	}
 
@@ -86,10 +88,10 @@ class ProductController extends Controller
 			
 			if (isset($images) && count($images) > 0) 
 			{
-                // go through each uploaded image
-                foreach ($images as $image => $pic) 
+                				// go through each uploaded image
+               				 foreach ($images as $image => $pic) 
 				{
-                    if ($pic->saveAs(Yii::getPathOfAlias('webroot').'/images/photos/'.$productModel->product_id.'/'.$pic->name)) 
+                  				if ($pic->saveAs(Yii::getPathOfAlias('webroot').'/images/photos/'.$productModel->product_id.'/'.$pic->name)) 
 					{
 						$photoModel = new Photo;
 						$photoModel->photo_name = $pic->name;
@@ -100,12 +102,12 @@ class ProductController extends Controller
 						{
 							throw new CHttpException(400,'图片上传遇到问题，请重新上传或与开发者联系');
 						}
-                    }
-                    else  // handle the errors here, if you want
+                  				}
+                    				else  // handle the errors here, if you want
 					{
 						;
 					}
-                }
+                				}
 				//Create the thumbnail for the product
 				$photoModel = Photo::model()->findByAttributes(array('product_id'=>$productModel->product_id));
 				$image = Yii::app()->image->load(Yii::getPathOfAlias('webroot').'/images/photos/'.$productModel->product_id.'/'.$photoModel->photo_name);
@@ -233,10 +235,10 @@ class ProductController extends Controller
 			
 			if (isset($images) && count($images) > 0) 
 			{
-                // go through each uploaded image
-                foreach ($images as $image => $pic) 
+               				 // go through each uploaded image
+                				foreach ($images as $image => $pic) 
 				{
-                    if ($pic->saveAs(Yii::getPathOfAlias('webroot').'/images/photos/'.$productModel->product_id.'/'.$pic->name)) 
+                   			if ($pic->saveAs(Yii::getPathOfAlias('webroot').'/images/photos/'.$productModel->product_id.'/'.$pic->name)) 
 					{
 						$photoModel = new Photo;
 						$photoModel->photo_name = $pic->name;
@@ -247,12 +249,12 @@ class ProductController extends Controller
 						{
 							throw new CHttpException(400,'图片上传遇到问题，请重新上传或与开发者联系');
 						}
-                    }
-                    else  // handle the errors here, if you want
+                  				}
+                  				else  // handle the errors here, if you want
 					{
 						;
 					}
-                }
+                				}
 			}
 			//Set the default thumbnail
 			if(!isset($productModel->mask_photo_id))
@@ -342,7 +344,6 @@ class ProductController extends Controller
 			throw new CHttpException(400,'Invalid request. Please do not repeat this request again.');
 	}
 	
-	
 	//Set the thumbnail for the product
 	public function actionSetThumbnail($id,$modelId)
 	{
@@ -395,6 +396,22 @@ class ProductController extends Controller
 		if($model===null)
 			throw new CHttpException(404,'The requested page does not exist.');
 		return $model;
+	}
+
+	//Delete comment of this product
+	public function actionDeleteComment($id)
+	{
+		if(Yii::app()->request->isPostRequest)
+		{
+			// we only allow deletion via POST request
+			ProductComment::model()->findByPk($id)->delete();
+
+			// if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
+			if(!isset($_GET['ajax']))
+				$this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
+		}
+		else
+			throw new CHttpException(400,'Invalid request. Please do not repeat this request again.');
 	}
 
 	/**

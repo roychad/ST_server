@@ -28,9 +28,12 @@
 	<div id="mainmenu">
 		<?php $this->widget('zii.widgets.CMenu',array(
 			'items'=>array(
-				array('label'=>'主页', 'url'=>array('/site/index')),
 				array('label'=>'登录', 'url'=>array('/site/login'), 'visible'=>Yii::app()->user->isGuest),
-				array('label'=>'注销 ('.Yii::app()->user->name.')', 'url'=>array('/site/logout'), 'visible'=>!Yii::app()->user->isGuest)
+				array('label'=>'注销 ('.Yii::app()->user->name.')', 'url'=>array('/site/logout'), 'visible'=>!Yii::app()->user->isGuest),
+				array('label'=>'订单管理', 'url'=>array('/order/admin'), 'visible'=>Yii::app()->user->isAdmin),
+				array('label'=>'新品发布', 'url'=>array('/product/create'), 'visible'=>Yii::app()->user->isAdmin),
+				array('label'=>'评论管理', 'url'=>array('/comment/index'), 'visible'=>Yii::app()->user->isAdmin),
+				array('label'=>'反馈处理', 'url'=>array('/feedback/index'), 'visible'=>Yii::app()->user->isAdmin),
 			),
 		)); ?>
 	</div><!-- mainmenu -->

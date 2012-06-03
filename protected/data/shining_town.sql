@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- 主机: localhost
--- 生成日期: 2012 年 04 月 16 日 04:50
+-- 生成日期: 2012 年 05 月 25 日 04:09
 -- 服务器版本: 5.5.16
 -- PHP 版本: 5.3.8
 
@@ -44,6 +44,51 @@ INSERT INTO `st_comment` (`id`, `text`, `create_time`, `contact_method`, `servic
 (1, 'comment test 1', '2012-03-14 00:00:00', NULL, 5, 5),
 (2, 'comment test 2', '2012-03-27 00:00:00', NULL, 5, 5),
 (3, 'Hello', '2012-04-15 13:30:56', 'hello@gmail.com', 5, 5);
+
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `st_feedback`
+--
+
+CREATE TABLE IF NOT EXISTS `st_feedback` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `order_id` varchar(50) NOT NULL,
+  `text` text NOT NULL,
+  `contact_method` varchar(100) DEFAULT NULL,
+  `create_time` datetime NOT NULL,
+  `photo_name` varchar(100) DEFAULT NULL,
+  `dealed` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_feedback_order` (`order_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
+
+--
+-- 转存表中的数据 `st_feedback`
+--
+
+INSERT INTO `st_feedback` (`id`, `order_id`, `text`, `contact_method`, `create_time`, `photo_name`, `dealed`) VALUES
+(1, '000001', 'test', '12345678901', '2012-05-04 00:00:00', 'feedback.png', 1);
+
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `st_feedback_dealed`
+--
+
+CREATE TABLE IF NOT EXISTS `st_feedback_dealed` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `dealed_zn` varchar(4) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
+
+--
+-- 转存表中的数据 `st_feedback_dealed`
+--
+
+INSERT INTO `st_feedback_dealed` (`id`, `dealed_zn`) VALUES
+(1, '是'),
+(2, '否');
 
 -- --------------------------------------------------------
 
@@ -116,7 +161,7 @@ CREATE TABLE IF NOT EXISTS `st_photo` (
   `photo_state_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_photo_state` (`photo_state_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=7 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=13 ;
 
 --
 -- 转存表中的数据 `st_photo`
@@ -126,7 +171,13 @@ INSERT INTO `st_photo` (`id`, `photo_name`, `product_id`, `photo_state_id`) VALU
 (3, '13085.jpg', '000003', 1),
 (4, '61186e38129a0e7896ddd825.jpg', '000003', 1),
 (5, '61186e38129a0e7896ddd825.jpg', '000004', 1),
-(6, '61186e38129a0e7896ddd825.jpg', '000004', 1);
+(6, 'iphone_4_colors.jpg', '000004', 1),
+(7, 'iphone_4_colors.jpg', '000008', 1),
+(8, '13085.jpg', '000008', 1),
+(9, '61186e38129a0e7896ddd825.jpg', '000009', 1),
+(10, '13085.jpg', '000009', 1),
+(11, 'Chrysanthemum.jpg', '000010', 1),
+(12, 'Desert.jpg', '000010', 1);
 
 -- --------------------------------------------------------
 
@@ -166,15 +217,17 @@ CREATE TABLE IF NOT EXISTS `st_product` (
   PRIMARY KEY (`id`),
   KEY `product_id` (`product_id`),
   KEY `fk_product_photo` (`mask_photo_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=12 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=15 ;
 
 --
 -- 转存表中的数据 `st_product`
 --
 
 INSERT INTO `st_product` (`id`, `product_id`, `product_name`, `product_introduce`, `product_mark`, `product_create_time`, `product_marked_times`, `mask_photo_id`) VALUES
-(2, '000001', 'iphone手机壳', '这是一个iphone手机壳', 5, '2012-04-02 00:00:00', 0, 3),
-(11, '000004', 'another test', 'another test', 5, '2012-04-13 18:13:56', 0, 5);
+(11, '000004', 'another test', 'another test', 5, '2012-04-13 18:13:56', 0, 5),
+(12, '000008', 'test4', 'test4', 5, '2012-04-17 19:46:55', 0, 8),
+(13, '000009', 'test5', 'test4sdasdf', 5, '2012-04-17 19:48:38', 0, 9),
+(14, '000010', '测试', '测试产品', 5, '2012-05-02 16:36:06', 0, 11);
 
 -- --------------------------------------------------------
 
@@ -191,14 +244,15 @@ CREATE TABLE IF NOT EXISTS `st_product_comment` (
   `amazing_level` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_comment_product` (`product_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
 
 --
 -- 转存表中的数据 `st_product_comment`
 --
 
 INSERT INTO `st_product_comment` (`id`, `product_id`, `text`, `create_time`, `contact_method`, `amazing_level`) VALUES
-(1, '000001', 'product comment test', '2012-04-13 00:00:00', 'roychad0421@gmail.com', 5);
+(1, '000004', 'product comment test', '2012-04-13 00:00:00', 'roychad0421@gmail.com', 5),
+(2, '000004', 'test', '2012-04-16 00:00:00', 'roychad0421@gmail.com', 5);
 
 -- --------------------------------------------------------
 
@@ -270,6 +324,12 @@ INSERT INTO `st_user_limit` (`id`, `limit_id`, `limit_zn`) VALUES
 --
 -- 限制导出的表
 --
+
+--
+-- 限制表 `st_feedback`
+--
+ALTER TABLE `st_feedback`
+  ADD CONSTRAINT `fk_feedback_order` FOREIGN KEY (`order_id`) REFERENCES `st_order` (`order_id`);
 
 --
 -- 限制表 `st_order`

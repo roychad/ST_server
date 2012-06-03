@@ -151,6 +151,20 @@ class Order extends CActiveRecord
 	{
 		return preg_match("/^[a-zA-Z0-9]{6,11}$/", $order_id)?true:false;
 	}
+
+	static public function existOrderByOrderId($order_id)
+	{
+		if(preg_match("/^[a-zA-Z0-9]{6,11}$/", $order_id))
+		{
+			$sql_getOrder = "SELECT * FROM `st_order` WHERE order_id = '".$order_id."'";
+			$result = Yii::app()->db->createCommand($sql_getOrder)->query();
+			return $result?true:false;
+		}
+		else
+		{
+			return false;
+		}
+	}
 	
 	public function getOrderByOrderId($order_id)
 	{

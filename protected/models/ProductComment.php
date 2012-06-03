@@ -109,7 +109,7 @@ class ProductComment extends CActiveRecord
 	{
 		if(validateProductId($product_id))
 		{
-			$sql_getProduct = "SELECT * FROM `st_product` WHERE product_id = '$product_id'";
+			$sql_getProduct = "SELECT * FROM `st_product` WHERE product_id = '$product_id' limit 1";
 			$results = Yii::app()->db->createCommand($sql_getProduct)->queryAll();
 			return isset($results[0])?true:false;
 		}
@@ -135,5 +135,23 @@ class ProductComment extends CActiveRecord
 	static public function validateId($id)
 	{
 		return validateId($id);
+	}
+
+	//Get comments by productId
+	public function getCommentsByProductId($product_id)
+	{
+		$criteria=new CDbCriteria;
+		$this->product_id = $product_id;
+
+		$criteria->compare('id',$this->id);
+		$criteria->compare('product_id',$this->product_id,true);
+		$criteria->compare('text',$this->text,true);
+		$criteria->compare('create_time',$this->create_time,true);
+		$criteria->compare('contact_method',$this->contact_method,true);
+		$criteria->compare('amazing_level',$this->amazing_level);
+
+		return new CActiveDataProvider($this, array(
+			'criteria'=>$criteria,
+		));
 	}
 }

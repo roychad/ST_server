@@ -35,11 +35,32 @@ foreach($photos as $photo)
 {
 	echo '<div class="view">';
 	echo ($photo->id === $model->mask_photo_id)?'封面（不能删除）<br />':'';
-	echo CHtml::image(Yii::app()->baseUrl.'/images/photos/'.$model->product_id.'/'.$photo->photo_name,'图片的说明',array('width'=>'200px','height'=>'150px')).'<br />'; 
+	echo CHtml::image(Yii::app()->baseUrl.'/images/photos/'.$model->product_id.'/'.$photo->photo_name,'示例图片',array('width'=>'200px','height'=>'150px')).'<br />'; 
 	echo ($photo->id !== $model->mask_photo_id)?CHtml::ajaxButton('删除', '#', array(),array('submit'=>array('deletePhoto','id'=>$photo->id,'modelId'=>$model->id))):'';
 	echo ($photo->id !== $model->mask_photo_id)?CHtml::ajaxButton('设为封面', '#', array(),array('submit'=>array('setThumbnail','id'=>$photo->id,'modelId'=>$model->id))):'';
 	echo '</div>';
 }
 echo '</div>';
+echo '<br />';
+echo '<h2>评论：</h2>';
+
+
+$this->widget('zii.widgets.grid.CGridView', array(
+	'id'=>'product-grid',
+	'dataProvider'=>$comments->getCommentsByProductId($model->product_id),
+	'filter'=>$comments,
+	'columns'=>array(
+		'id',
+		'product_id',
+		'text',
+		'create_time',
+		'contact_method',
+		'amazing_level',
+		array(
+			'class'=>'CButtonColumn',
+			'deleteButtonUrl'=>'Yii::app()->createUrl("/product/deleteComment", array("id" => $data->id))',
+		),
+	),
+)); 
 
 ?>

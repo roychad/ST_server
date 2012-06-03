@@ -1,18 +1,18 @@
 <?php
 $this->breadcrumbs=array(
-	'Users'=>array('index'),
+	'用户'=>array('index'),
 	$model->id=>array('view','id'=>$model->id),
-	'Update',
+	'更新',
 );
 
 $this->menu=array(
-	array('label'=>'List User', 'url'=>array('index')),
-	array('label'=>'Create User', 'url'=>array('create')),
-	array('label'=>'View User', 'url'=>array('view', 'id'=>$model->id)),
-	array('label'=>'Manage User', 'url'=>array('admin')),
+	array('label'=>'用户列表', 'url'=>array('index')),
+	array('label'=>'创建用户', 'url'=>array('create')),
+	array('label'=>'用户信息', 'url'=>array('view', 'id'=>$model->id)),
+	array('label'=>'用户管理', 'url'=>array('admin')),
 );
 ?>
 
-<h1>Update User <?php echo $model->id; ?></h1>
+<h2>更改用户<?php echo $model->user_id; ?>的信息</h2>
 
 <?php echo $this->renderPartial('_form', array('model'=>$model)); ?>

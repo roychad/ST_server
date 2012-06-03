@@ -69,11 +69,11 @@ class User extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'id' => 'ID',
-			'user_id' => 'User',
-			'username' => 'Username',
-			'password' => 'Password',
-			'limit_id' => 'Limit',
+			'id' => '序号',
+			'user_id' => '工号',
+			'username' => '用户名',
+			'password' => '密码',
+			'limit_id' => '权限',
 		);
 	}
 
