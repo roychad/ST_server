@@ -97,6 +97,7 @@ class OrderController extends Controller
 	public function actionSearch()
 	{
 		$model = new Order;
+		$errorMessage = null;
 		
 		if(isset($_GET['order_id'])&&Order::model()->isValidateOrderId($_GET['order_id']))
 		{
@@ -108,12 +109,14 @@ class OrderController extends Controller
 		else
 		{
 			$model -> unsetAttributes();
+			$errorMessage = '订单号不存在！';
 		}
 		
 		$this->layout = false;
 		
 		$this->render('_customer',array(
 			'model' => $model,
+			'message' => $errorMessage,
 		));
 	}
 
